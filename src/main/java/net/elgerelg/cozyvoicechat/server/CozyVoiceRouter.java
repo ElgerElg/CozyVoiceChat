@@ -3,6 +3,9 @@ package net.elgerelg.cozyvoicechat.server;
 import net.elgerelg.cozyvoicechat.CozyVoiceProtocol;
 import net.elgerelg.cozyvoicechat.api.CozyVoiceApi;
 import net.elgerelg.cozyvoicechat.api.VoiceRouteHook;
+import net.elgerelg.cozyvoicechat.api.event.VoiceRouteEvent;
+import net.elgerelg.cozyvoicechat.api.server.VoiceTarget;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -27,11 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class CozyVoiceRouter {
 
-    /** Один получатель готового маршрута. */
-    public record Target(UUID id, byte category, float gain) {}
-
     /** Готовый маршрут говорящего: кому слать и какие эффекты наложить. */
-    public record Route(List<Target> targets, boolean radioFx, boolean echoFx, long expiresAtTick) {
+    public record Route(List<VoiceTarget> targets, boolean radioFx, boolean echoFx, long expiresAtTick) {
         public boolean expired(long gameTime) { return gameTime >= expiresAtTick; }
     }
 
@@ -57,14 +57,27 @@ public final class CozyVoiceRouter {
     /** Строит маршрут для говорящего. Вызывается только из серверного потока. */
     public static Route compute(MinecraftServer srv, ServerPlayer sender, byte[] lastFrame) {
         long gt = sender.level().getGameTime();
-        List<Target> targets = new java.util.ArrayList<>();
-        VoiceRouteHook.Sink sink = (id, cat, gain) -> targets.add(new Target(id, cat, gain));
+        List<VoiceTarget> targets = new java.util.ArrayList<>();
+        VoiceRouteHook.Sink sink = (id, cat, gain) -> {
+            if (id != null) targets.add(new VoiceTarget(id, cat, gain));
+        };
 
         UUID senderId = sender.getUUID();
         boolean radioFx = VoiceEffectManager.hasEffect(senderId, "radio");
         boolean echoFx = VoiceEffectManager.hasEffect(senderId, "echo");
 
-        route(srv, sender, lastFrame, sink);
+        if (!route(srv, sender, lastFrame, sink)) {
+            return new Route(List.of(), false, false, gt + ROUTE_TTL_TICKS); // мут/спектатор
+        }
+
+        // Публичный API: аддоны могут поправить маршрут и эффекты.
+        VoiceRouteEvent ev = new VoiceRouteEvent(sender, targets, radioFx, echoFx);
+        if (MinecraftForge.EVENT_BUS.post(ev)) {
+            return new Route(List.of(), false, false, gt + ROUTE_TTL_TICKS);
+        }
+        radioFx = ev.isRadioEffect();
+        echoFx = ev.isEchoEffect();
+        targets.removeIf(java.util.Objects::isNull);
 
         if (targets.isEmpty() && !radioFx && !echoFx) {
             return new Route(List.of(), false, false, gt + ROUTE_TTL_TICKS);
@@ -79,12 +92,13 @@ public final class CozyVoiceRouter {
         VoiceEffectsServer.clear(playerId);
     }
 
-    private static void route(MinecraftServer srv, ServerPlayer sender, byte[] lastFrame, VoiceRouteHook.Sink sink) {
+    /** @return false, если говорящий заблокирован (мут, спектатор) */
+    private static boolean route(MinecraftServer srv, ServerPlayer sender, byte[] lastFrame, VoiceRouteHook.Sink sink) {
         UUID senderId = sender.getUUID();
         long gt = sender.level().getGameTime();
         List<VoiceRouteHook> hooks = CozyVoiceApi.routeHooks();
 
-        if (isBlocked(srv, sender, senderId, gt, hooks)) return;
+        if (isBlocked(srv, sender, senderId, gt, hooks)) return false;
 
         Long lastNoise = NOISE_THROTTLE.get(senderId);
         if (lastNoise == null || gt - lastNoise >= NOISE_THROTTLE_TICKS) {
@@ -98,15 +112,33 @@ public final class CozyVoiceRouter {
         boolean selfMonitor = SelfMonitorManager.isEnabled(senderId);
         float level = hooks.isEmpty() ? 0f : level(senderId, lastFrame);
 
-        for (VoiceRouteHook h : hooks) {
-            if (h.routeExclusive(srv, sender, level, selfMonitor, sink)) return;
+        // Группы (API): участники слышат друг друга без ограничения по дальности.
+        Set<UUID> grouped = Set.of();
+        VoiceGroupManager.GroupImpl group = VoiceGroupManager.groupOfRaw(senderId);
+        if (group != null) {
+            grouped = new HashSet<>();
+            for (UUID m : group.membersRaw()) {
+                if (m.equals(senderId)) continue;
+                sink.send(m, CozyVoiceProtocol.CAT_GLOBAL, 1f);
+                grouped.add(m);
+            }
+            if (group.isExclusive()) {
+                if (selfMonitor) sink.send(senderId, CozyVoiceProtocol.CAT_PROXIMITY, 1f);
+                return true;
+            }
         }
 
-        Set<UUID> heardLive = routeProximity(srv, sender, senderId, selfMonitor, cfg, sink);
+        for (VoiceRouteHook h : hooks) {
+            if (h.routeExclusive(srv, sender, level, selfMonitor, sink)) return true;
+        }
+
+        Set<UUID> heardLive = routeProximity(srv, sender, senderId, selfMonitor, cfg, sink, grouped);
+        heardLive.addAll(grouped);
 
         for (VoiceRouteHook h : hooks) {
             h.routeExtra(srv, sender, level, selfMonitor, java.util.Collections.unmodifiableSet(heardLive), sink);
         }
+        return true;
     }
 
     /** Мут и спектатор — проверка кэшируется, она идёт на каждый кадр. */
@@ -133,7 +165,7 @@ public final class CozyVoiceRouter {
      */
     private static Set<UUID> routeProximity(MinecraftServer srv, ServerPlayer sender, UUID senderId,
                                             boolean selfMonitor, CozyVoiceServerConfig cfg,
-                                            VoiceRouteHook.Sink sink) {
+                                            VoiceRouteHook.Sink sink, Set<UUID> skip) {
         double maxSq = (double) cfg.maxDistance * cfg.maxDistance;
         boolean occlusion = VoicePassthroughManager.isFilterActive(srv);
         Set<UUID> delivered = new HashSet<>();
@@ -144,6 +176,7 @@ public final class CozyVoiceRouter {
                 if (selfMonitor) sink.send(targetId, CozyVoiceProtocol.CAT_PROXIMITY, 1f);
                 continue;
             }
+            if (skip.contains(targetId)) continue;
             if (target.level() != sender.level()) continue;
             if (target.distanceToSqr(sender) > maxSq) continue;
             if (occlusion && !VoicePassthroughManager.canPass(sender, target)) continue;

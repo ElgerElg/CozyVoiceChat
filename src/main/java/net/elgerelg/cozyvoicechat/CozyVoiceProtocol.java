@@ -16,6 +16,9 @@ import java.util.UUID;
  *   AUTH_OK(10):  —
  *   VOICE(3):     [16B sender UUID][4B seq u32][1B category][1B gain 0..255][opus data]
  *   PONG(11):     [8B clientNanos эхом]
+ *   SOURCE(12):   [16B channel UUID][4B seq u32][1B kind][1B gain 0..255][4B float distance]
+ *                 [kind data: static — нет; locational — 3×double xyz; entity — 4B entity id][opus data]
+ *                 — звук от аддонов (API AudioChannel)
  *
  * Категория говорит клиенту, как проигрывать кадр: позиционный голос он
  * ослабляет по расстоянию и панорамирует, рация/глобал/CCTV звучат плоско.
@@ -31,6 +34,14 @@ public final class CozyVoiceProtocol {
     public static final byte T_PING = 5;
     public static final byte T_AUTH_OK = 10;
     public static final byte T_PONG = 11;
+    public static final byte T_SOURCE = 12;
+
+    /** Виды источников в SOURCE-пакете. */
+    public static final byte SRC_STATIC = 0;
+    public static final byte SRC_LOCATIONAL = 1;
+    public static final byte SRC_ENTITY = 2;
+    /** Смещение данных вида источника в SOURCE-пакете. */
+    public static final int SOURCE_KIND_DATA_OFFSET = HEADER + 16 + 4 + 1 + 1 + 4;
 
     /** Категории звука в relay-пакете. */
     public static final byte CAT_PROXIMITY = 0;
@@ -106,6 +117,39 @@ public final class CozyVoiceProtocol {
         d[25] = category;
         d[26] = (byte) Math.round(Math.max(0f, Math.min(1f, gain)) * 255f);
         System.arraycopy(opus, opusOff, d, RELAY_OPUS_OFFSET, opusLen);
+        return d;
+    }
+
+    /** Длина заголовка SOURCE-пакета до opus-данных; -1 для неизвестного вида. */
+    public static int sourceHeaderLength(byte kind) {
+        return switch (kind) {
+            case SRC_STATIC -> SOURCE_KIND_DATA_OFFSET;
+            case SRC_LOCATIONAL -> SOURCE_KIND_DATA_OFFSET + 24;
+            case SRC_ENTITY -> SOURCE_KIND_DATA_OFFSET + 4;
+            default -> -1;
+        };
+    }
+
+    public static byte[] relaySource(UUID channel, int seq, byte kind, float gain, float distance,
+                                     double x, double y, double z, int entityId, byte[] opus) {
+        int head = sourceHeaderLength(kind);
+        byte[] d = new byte[head + opus.length];
+        writeInt(d, 0, MAGIC);
+        d[4] = T_SOURCE;
+        writeUuid(d, 5, channel);
+        writeInt(d, 21, seq);
+        d[25] = kind;
+        d[26] = (byte) Math.round(Math.max(0f, Math.min(1f, gain)) * 255f);
+        writeInt(d, 27, Float.floatToIntBits(distance));
+        int o = SOURCE_KIND_DATA_OFFSET;
+        if (kind == SRC_LOCATIONAL) {
+            writeLong(d, o, Double.doubleToLongBits(x));
+            writeLong(d, o + 8, Double.doubleToLongBits(y));
+            writeLong(d, o + 16, Double.doubleToLongBits(z));
+        } else if (kind == SRC_ENTITY) {
+            writeInt(d, o, entityId);
+        }
+        System.arraycopy(opus, 0, d, head, opus.length);
         return d;
     }
 

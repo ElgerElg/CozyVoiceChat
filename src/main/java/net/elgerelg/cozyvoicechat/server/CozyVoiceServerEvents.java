@@ -40,6 +40,7 @@ public final class CozyVoiceServerEvents {
     @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent e) {
         CozyVoiceServer.stop();
+        VoiceGroupManager.clear();
     }
 
     @SubscribeEvent

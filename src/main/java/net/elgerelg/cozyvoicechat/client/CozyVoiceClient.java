@@ -42,6 +42,8 @@ public final class CozyVoiceClient {
     /** uuid -> время последнего голосового пакета (для HUD). */
     private static final Map<UUID, Long> talkers = new ConcurrentHashMap<>();
     private static final long TALKER_TTL_MS = 400;
+    /** id аудиоканала аддона -> время последнего пакета. */
+    private static final Map<UUID, Long> sources = new ConcurrentHashMap<>();
 
     private CozyVoiceClient() {}
 
@@ -111,6 +113,7 @@ public final class CozyVoiceClient {
         }
         status = Status.OFF;
         talkers.clear();
+        sources.clear();
         MicCapture.updateDemand();
     }
 
@@ -166,6 +169,30 @@ public final class CozyVoiceClient {
                     VoicePlayback.addVoice(sender, category, gain, d, CozyVoiceProtocol.RELAY_OPUS_OFFSET, opusLen);
                     talkers.put(sender, System.currentTimeMillis());
                 }
+                case CozyVoiceProtocol.T_SOURCE -> {
+                    if (len <= CozyVoiceProtocol.SOURCE_KIND_DATA_OFFSET) break;
+                    byte kind = d[25];
+                    int head = CozyVoiceProtocol.sourceHeaderLength(kind);
+                    if (head < 0 || len <= head) break;
+                    UUID id = CozyVoiceProtocol.readUuid(d, 5);
+                    int s = CozyVoiceProtocol.readInt(d, 21);
+                    float gain = (d[26] & 0xFF) / 255f;
+                    float distance = Float.intBitsToFloat(CozyVoiceProtocol.readInt(d, 27));
+                    int o = CozyVoiceProtocol.SOURCE_KIND_DATA_OFFSET;
+                    double x = 0, y = 0, z = 0;
+                    int entityId = 0;
+                    if (kind == CozyVoiceProtocol.SRC_LOCATIONAL) {
+                        x = Double.longBitsToDouble(CozyVoiceProtocol.readLong(d, o));
+                        y = Double.longBitsToDouble(CozyVoiceProtocol.readLong(d, o + 8));
+                        z = Double.longBitsToDouble(CozyVoiceProtocol.readLong(d, o + 16));
+                    } else if (kind == CozyVoiceProtocol.SRC_ENTITY) {
+                        entityId = CozyVoiceProtocol.readInt(d, o);
+                    }
+                    if (!Float.isFinite(distance) || distance < 1f) distance = maxDistance;
+                    VoiceStats.onReceived(id, s, len);
+                    VoicePlayback.addSource(id, kind, gain, distance, x, y, z, entityId, d, head, len - head);
+                    sources.put(id, System.currentTimeMillis());
+                }
                 default -> {}
             }
         }
@@ -198,6 +225,12 @@ public final class CozyVoiceClient {
      */
     public static boolean isTalking(UUID id) {
         Long t = talkers.get(id);
+        return t != null && System.currentTimeMillis() - t <= TALKER_TTL_MS;
+    }
+
+    /** Звучит ли сейчас аудиоканал аддона с таким id. */
+    public static boolean isSourceActive(UUID id) {
+        Long t = id == null ? null : sources.get(id);
         return t != null && System.currentTimeMillis() - t <= TALKER_TTL_MS;
     }
 

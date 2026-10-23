@@ -2,6 +2,8 @@ package net.elgerelg.cozyvoicechat.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.elgerelg.cozyvoicechat.api.event.client.ClientVoiceSettingsChangedEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
@@ -99,8 +101,16 @@ public final class CozyVoiceSettings {
         else cfg.playerVolumes.put(id.toString(), clamp(v, 0, 2));
     }
 
-    public static synchronized void save() {
-        if (instance == null) return;
+    public static void save() {
+        if (!saveInternal()) return;
+        // Вне блокировки: обработчик может сразу перечитать настройки.
+        try {
+            MinecraftForge.EVENT_BUS.post(new ClientVoiceSettingsChangedEvent());
+        } catch (Throwable ignored) {}
+    }
+
+    private static synchronized boolean saveInternal() {
+        if (instance == null) return false;
         File f = file();
         try {
             f.getParentFile().mkdirs();
@@ -108,6 +118,7 @@ public final class CozyVoiceSettings {
                 GSON.toJson(instance, w);
             }
         } catch (Exception ignored) {}
+        return true;
     }
 
     private static double clamp(double v, double min, double max) {

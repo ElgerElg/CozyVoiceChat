@@ -20,7 +20,7 @@
 - 🛠️ **Admin command** `/cozyvoice` with debug info, mutes, effects and config reload.
 - 🌍 **Languages:** English, Русский, Українська.
 - ☕ **Opus codec** via [Concentus](https://github.com/lostromb/concentus), pure Java and bundled in the jar.
-- 🔌 **API** for other mods to add their own routing (radios, global channels, custom mutes).
+- 🔌 **Addon API:** events, routing hooks, voice groups, custom audio channels and client integration. See [API.md](API.md).
 
 ## Requirements
 
@@ -74,26 +74,22 @@ All commands require **OP level 2**.
 | `/cozyvoice passthrough filteradd\|filterrem <block>` | Add or remove a voice-blocking block |
 | `/cozyvoice passthrough filterlist` | List voice-blocking blocks |
 
-## For developers
+## Addon API
 
-Other mods can hook into voice routing:
+Cozy Voice Chat has a public, documented API for addons: server and client events, mutes and effects, voice groups,
+custom audio channels (static, locational and entity-bound), microphone and playback processing, and HUD/settings integration.
 
-```java
-CozyVoiceApi.registerRouteHook(new VoiceRouteHook() {
-    @Override
-    public boolean isMuted(MinecraftServer server, ServerPlayer player) {
-        return MyMutes.isMuted(player);
-    }
-
-    @Override
-    public void routeExtra(MinecraftServer server, ServerPlayer sender, float level,
-                           boolean selfMonitor, Set<UUID> heardLive, Sink sink) {
-        // e.g. a radio: sink.send(listenerId, CozyVoiceProtocol.CAT_RADIO, 1f);
-    }
-});
+```gradle
+repositories { maven { url 'https://jitpack.io' } }
+dependencies { compileOnly 'com.github.ElgerElg.CozyVoiceChat:cozyvoicechat-api:<tag>' }
 ```
 
-On the client, `VoicePlayback.levelOf(uuid)` returns how loud a player is speaking (0 to 1).
+```java
+CozyVoiceApi api = CozyVoiceApi.get();
+api.server().mute(player.getUUID(), 60);
+```
+
+See **[API.md](API.md)** for setup, the full overview and examples.
 
 ## Building
 
@@ -101,7 +97,7 @@ On the client, `VoicePlayback.levelOf(uuid)` returns how loud a player is speaki
 ./gradlew build
 ```
 
-The output goes to `build/libs/`.
+The output goes to `build/libs/`: `cozyvoicechat-<version>.jar` (the mod), `cozyvoicechat-api-<version>.jar` (API only, for addon developers) and sources jars.
 
 ## Localization
 
@@ -110,8 +106,8 @@ Language files are in `src/main/resources/assets/cozyvoicechat/lang/` (`en_us.js
 ## Credits
 
 - **Author:** ElgerElg
-- **Opus codec:** [Concentus](https://github.com/lostromb/concentus) by Logan Stromberg
+- **Opus codec:** [Concentus](https://github.com/lostromb/concentus) by Logan Stromberg (BSD license), bundled via the `io.github.jaredmdobson:concentus` build
 
 ## License
 
-All Rights Reserved.
+Cozy Voice Chat is released under the [MIT License](LICENSE).

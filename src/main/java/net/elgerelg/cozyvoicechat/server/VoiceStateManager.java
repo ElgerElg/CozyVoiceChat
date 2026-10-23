@@ -3,8 +3,11 @@ package net.elgerelg.cozyvoicechat.server;
 import net.elgerelg.cozyvoicechat.CozyVoiceNetwork;
 import net.elgerelg.cozyvoicechat.VoiceStatePacket;
 
+import net.elgerelg.cozyvoicechat.api.event.VoiceStateChangedEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +31,18 @@ public final class VoiceStateManager {
         for (ServerPlayer p : srv.getPlayerList().getPlayers()) {
             if (!p.getUUID().equals(playerId)) CozyVoiceNetwork.sendTo(p, msg);
         }
+        if (old == null && flags == 0) return; // первый отчёт после входа: ничего не поменялось
+        ServerPlayer who = srv.getPlayerList().getPlayer(playerId);
+        if (who != null) {
+            MinecraftForge.EVENT_BUS.post(new VoiceStateChangedEvent(who,
+                    (flags & VoiceStatePacket.FLAG_MIC_MUTED) != 0, (flags & VoiceStatePacket.FLAG_DEAFENED) != 0));
+        }
+    }
+
+    /** Флаги игрока (см. VoiceStatePacket), 0 если неизвестны. */
+    public static int flags(UUID playerId) {
+        Integer f = playerId == null ? null : FLAGS.get(playerId);
+        return f == null ? 0 : f;
     }
 
     /** Новичку — состояния всех остальных. */

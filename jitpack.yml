@@ -1,0 +1,7 @@
+# JitPack build: https://jitpack.io/#ElgerElg/CozyVoiceChat
+jdk:
+  - openjdk17
+before_install:
+  - chmod +x gradlew
+install:
+  - ./gradlew build publishToMavenLocal --no-daemon

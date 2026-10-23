@@ -1,5 +1,8 @@
 package net.elgerelg.cozyvoicechat.server;
 
+import net.elgerelg.cozyvoicechat.api.event.VoiceMuteChangedEvent;
+import net.minecraftforge.common.MinecraftForge;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,10 +23,13 @@ public final class VoiceMuteManager {
         if (playerId == null) return;
         long until = seconds <= 0 ? Long.MAX_VALUE : System.currentTimeMillis() + seconds * 1000L;
         MUTES.put(playerId, until);
+        MinecraftForge.EVENT_BUS.post(new VoiceMuteChangedEvent(playerId, true, seconds <= 0 ? -1 : seconds));
     }
 
     public static boolean unmute(UUID playerId) {
-        return playerId != null && MUTES.remove(playerId) != null;
+        boolean removed = playerId != null && MUTES.remove(playerId) != null;
+        if (removed) MinecraftForge.EVENT_BUS.post(new VoiceMuteChangedEvent(playerId, false, 0));
+        return removed;
     }
 
     public static boolean isMuted(UUID playerId) {

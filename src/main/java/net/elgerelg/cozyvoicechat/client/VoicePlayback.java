@@ -2,8 +2,12 @@ package net.elgerelg.cozyvoicechat.client;
 
 import net.elgerelg.cozyvoicechat.CozyVoiceProtocol;
 import net.elgerelg.cozyvoicechat.OpusCodec;
+import net.elgerelg.cozyvoicechat.api.VoiceCategory;
+import net.elgerelg.cozyvoicechat.api.event.client.ClientReceiveAudioEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import io.github.jaredmdobson.concentus.OpusDecoder;
 
@@ -81,6 +85,10 @@ public final class VoicePlayback implements Runnable {
         volatile float gain = 1f;
         boolean flowing = false;
         int concealed = 0;
+        /** Аудиоканал аддона: позиция/сущность и дальность (для player voice не используются). */
+        volatile double sx, sy, sz;
+        volatile int entityId;
+        volatile float distance;
 
         Chan(OpusDecoder dec) { this.dec = dec; }
     }
@@ -198,6 +206,32 @@ public final class VoicePlayback implements Runnable {
         c.last = System.currentTimeMillis();
     }
 
+    /** Звук аудиоканала аддона (SOURCE-пакет). */
+    public static void addSource(UUID source, byte kind, float gain, float distance,
+                                 double x, double y, double z, int entityId, byte[] data, int off, int len) {
+        VoicePlayback i = instance;
+        if (i == null || !i.running) return;
+        if (CozyVoiceSettings.get().deafened) return;
+        Chan c = i.channels.computeIfAbsent(new ChanKey(source, (byte) (VoiceCategory.STATIC_SOURCE + kind)), k -> {
+            OpusDecoder d = OpusCodec.newDecoder();
+            return d == null ? null : new Chan(d);
+        });
+        if (c == null) return;
+        c.gain = gain;
+        c.sx = x;
+        c.sy = y;
+        c.sz = z;
+        c.entityId = entityId;
+        c.distance = distance;
+        byte[] copy = new byte[len];
+        System.arraycopy(data, off, copy, 0, len);
+        synchronized (c.queue) {
+            if (c.queue.size() >= MAX_QUEUE) c.queue.poll();
+            c.queue.offer(copy);
+        }
+        c.last = System.currentTimeMillis();
+    }
+
     /** Сбросить накопленный монитор: остаток буфера иначе доиграет после выключения. */
     public static void stopMonitor() {
         VoicePlayback i = instance;
@@ -282,9 +316,19 @@ public final class VoicePlayback implements Runnable {
                 }
                 if (n <= 0) continue;
 
+                // Публичный API: аддон может обработать или выкинуть кадр.
+                try {
+                    if (MinecraftForge.EVENT_BUS.post(new ClientReceiveAudioEvent(
+                            e.getKey().sender(), e.getKey().category(), mono))) {
+                        continue;
+                    }
+                } catch (Throwable t) {
+                    // чужой обработчик не должен ронять воспроизведение
+                }
+
                 noteLevel(e.getKey().sender(), mono, n);
 
-                float[] gains = gains(e.getKey(), master * c.gain);
+                float[] gains = gains(e.getKey(), c, master * c.gain);
                 if (gains == null) continue; // игрок не виден — пропускаем
                 float gl = gains[0], gr = gains[1];
 
@@ -351,15 +395,27 @@ public final class VoicePlayback implements Runnable {
      * Громкость левого/правого канала для отправителя.
      * null — если игрок не найден в мире (не рендерится).
      */
-    private static float[] gains(ChanKey key, double masterGain) {
+    private static float[] gains(ChanKey key, Chan c, double masterGain) {
         // Индивидуальная громкость действует на все категории: игрок хочет
         // приглушить конкретного человека, а не конкретный канал.
         double master = masterGain * CozyVoiceSettings.playerVolume(key.sender());
         if (master <= 0.0001) return null;
 
+        byte cat = key.category();
+        if (cat == VoiceCategory.LOCATIONAL_SOURCE) {
+            return spatial(master, c.sx, c.sy, c.sz, c.distance);
+        }
+        if (cat == VoiceCategory.ENTITY_SOURCE) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level == null) return null;
+            Entity en = mc.level.getEntity(c.entityId);
+            if (en == null) return null;
+            return spatial(master, en.getX(), en.getY(), en.getZ(), c.distance);
+        }
+
         // Рация, глобальный микрофон и звук с камеры звучат «в голове»:
         // расстояние до говорящего к ним неприменимо.
-        if (key.category() != CozyVoiceProtocol.CAT_PROXIMITY) {
+        if (cat != CozyVoiceProtocol.CAT_PROXIMITY) {
             return new float[]{(float) master, (float) master};
         }
 
@@ -367,15 +423,22 @@ public final class VoicePlayback implements Runnable {
         if (mc.player == null || mc.level == null) return null;
         Player p = mc.level.getPlayerByUUID(key.sender());
         if (p == null) return null;
+        return spatial(master, p.getX(), p.getY(), p.getZ(), CozyVoiceClient.maxDistance());
+    }
 
-        double max = Math.max(1, CozyVoiceClient.maxDistance());
-        double dist = mc.player.distanceTo(p);
+    /** Затухание по расстоянию и панорама для точки в мире. */
+    private static float[] spatial(double master, double x, double y, double z, double maxDistance) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return null;
+        double max = Math.max(1, maxDistance);
+        double ddx = x - mc.player.getX(), ddy = y - mc.player.getY(), ddz = z - mc.player.getZ();
+        double dist = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
         double atten = attenuation(dist, max, CozyVoiceClient.fadeStart());
         if (atten <= 0.001) return null;
 
         // панорама по относительному направлению
-        double dx = p.getX() - mc.player.getX();
-        double dz = p.getZ() - mc.player.getZ();
+        double dx = ddx;
+        double dz = ddz;
         double len = Math.hypot(dx, dz);
         double pan = 0;
         if (len > 0.05) {

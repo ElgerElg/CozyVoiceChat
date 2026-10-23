@@ -4,6 +4,8 @@ import net.elgerelg.cozyvoicechat.CozyVoiceProtocol;
 import net.elgerelg.cozyvoicechat.OpusCodec;
 
 import io.github.jaredmdobson.concentus.OpusEncoder;
+import net.elgerelg.cozyvoicechat.api.event.client.ClientMicrophoneEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.sound.sampled.TargetDataLine;
 import java.util.Arrays;
@@ -140,6 +142,14 @@ public final class MicCapture implements Runnable {
             boolean allowed = !cfg.micMuted && !cfg.deafened;
             boolean send = allowed && CozyVoiceClient.status() == CozyVoiceClient.Status.CONNECTED && encoder != null
                     && (cfg.vadMode ? lvl >= cfg.vadThreshold : CozyVoiceClient.isPtt());
+            if (send) {
+                // Публичный API: аддон может изменить кадр или не отправлять его.
+                try {
+                    if (MinecraftForge.EVENT_BUS.post(new ClientMicrophoneEvent(pcm))) send = false;
+                } catch (Throwable ignored) {
+                    // чужой обработчик не должен ронять микрофон
+                }
+            }
             gateOpen = send;
 
             if (send) {

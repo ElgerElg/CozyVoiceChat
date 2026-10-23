@@ -4,6 +4,10 @@ import net.elgerelg.cozyvoicechat.CozyVoiceChat;
 import net.elgerelg.cozyvoicechat.CozyVoiceNetwork;
 import net.elgerelg.cozyvoicechat.CozyVoiceProtocol;
 import net.elgerelg.cozyvoicechat.VoiceHelloPacket;
+import net.elgerelg.cozyvoicechat.api.event.MicrophonePacketEvent;
+import net.elgerelg.cozyvoicechat.api.event.VoiceConnectionEvent;
+import net.elgerelg.cozyvoicechat.api.server.VoiceTarget;
+import net.minecraftforge.common.MinecraftForge;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +20,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -164,6 +169,7 @@ public final class CozyVoiceServer {
             senderThread = null;
         }
         outgoing.clear();
+        AudioChannels.clearAll();
         sockets.clear();
         threads.clear();
         tokens.clear();
@@ -218,6 +224,7 @@ public final class CozyVoiceServer {
                     sessions.put(addr, s);
                     Session old = byPlayer.put(playerId, s);
                     if (old != null) sessions.remove(old.addr);
+                    else postConnection(playerId, null);
                     CozyVoiceChat.LOGGER.info("[CozyVoice] {} подключился к голосу ({}, порт {})",
                             nameOf(playerId), addr.getAddress().getHostAddress(), socket.getLocalPort());
                 }
@@ -237,10 +244,26 @@ public final class CozyVoiceServer {
                 byte[] opus = new byte[opusLen];
                 System.arraycopy(d, 9, opus, 0, opusLen);
                 s.lastFrame = opus;
+
+                // Публичный API: аддоны могут прочитать, заменить или отменить кадр.
+                CozyVoiceRouter.Route route = s.route;
+                List<VoiceTarget> override = null;
+                try {
+                    MicrophonePacketEvent ev = new MicrophonePacketEvent(s.playerId, seq, opus,
+                            route == null ? List.of() : route.targets());
+                    if (MinecraftForge.EVENT_BUS.post(ev)) return;
+                    opus = ev.getOpusData();
+                    if (ev.areTargetsModified()) override = ev.getTargets();
+                } catch (Throwable t) {
+                    if (CozyVoiceServerConfig.get().debugLog) {
+                        CozyVoiceChat.LOGGER.warn("[CozyVoice] MicrophonePacketEvent listener failed: {}", t.toString());
+                    }
+                }
+
                 // Кадр расходится по уже посчитанному маршруту, здесь же, в
                 // сетевом потоке. Серверный тик в этом не участвует вообще:
                 // раньше каждый кадр уходил в главный поток задачей.
-                dispatch(s, seq, opus);
+                dispatch(s, seq, opus, route, override);
             }
             case CozyVoiceProtocol.T_PING -> {
                 if (len < CozyVoiceProtocol.HEADER + 8) return;
@@ -251,6 +274,9 @@ public final class CozyVoiceServer {
                 if (s != null) {
                     byPlayer.remove(s.playerId, s);
                     CozyVoiceChat.LOGGER.info("[CozyVoice] {} отключился от голоса (клиент закрыл сессию)", nameOf(s.playerId));
+                    if (!byPlayer.containsKey(s.playerId)) {
+                        postConnection(s.playerId, VoiceConnectionEvent.Disconnected.Reason.CLIENT_CLOSED);
+                    }
                 }
             }
             default -> {}
@@ -286,7 +312,9 @@ public final class CozyVoiceServer {
             sessions.entrySet().removeIf(e -> {
                 Session s = e.getValue();
                 if (now - s.lastSeen > timeout) {
-                    byPlayer.remove(s.playerId, s);
+                    if (byPlayer.remove(s.playerId, s)) {
+                        postConnection(s.playerId, VoiceConnectionEvent.Disconnected.Reason.TIMED_OUT);
+                    }
                     CozyVoiceChat.LOGGER.warn("[CozyVoice] {} отвалился от голоса: timed out ({} с без пакетов)",
                             nameOf(s.playerId), cfg.sessionTimeoutSeconds);
                     return true;
@@ -340,16 +368,18 @@ public final class CozyVoiceServer {
             }
         }
 
+        AudioChannels.tick(srv);
         housekeeping();
     }
 
-    /** Рассылка кадра по готовому маршруту. Идёт в сетевом потоке. */
-    private static void dispatch(Session sender, int seq, byte[] opus) {
-        CozyVoiceRouter.Route route = sender.route;
-        if (route == null || route.targets().isEmpty()) return;
+    /** Рассылка кадра по готовому маршруту (или по списку от аддона). Идёт в сетевом потоке. */
+    private static void dispatch(Session sender, int seq, byte[] opus, CozyVoiceRouter.Route route,
+                                 List<VoiceTarget> override) {
+        List<VoiceTarget> targets = override != null ? override : (route == null ? null : route.targets());
+        if (targets == null || targets.isEmpty()) return;
 
         byte[] audio = opus;
-        if (route.radioFx() || route.echoFx()) {
+        if (route != null && (route.radioFx() || route.echoFx())) {
             audio = VoiceEffectsServer.apply(sender.playerId, opus,
                     CozyVoiceServerConfig.get().bitrate, route.radioFx(), route.echoFx());
         }
@@ -357,8 +387,9 @@ public final class CozyVoiceServer {
         // Пакет зависит только от категории и громкости, но не от получателя,
         // поэтому собираем его один раз на категорию, а не на каждого слушателя.
         byte[][] built = new byte[4][];
-        for (CozyVoiceRouter.Target t : route.targets()) {
-            Session s = byPlayer.get(t.id());
+        for (VoiceTarget t : targets) {
+            if (t == null) continue;
+            Session s = byPlayer.get(t.playerId());
             if (s == null) continue;
             int cat = t.category() & 0xFF;
             boolean cacheable = t.gain() == 1f && cat < built.length;
@@ -404,6 +435,47 @@ public final class CozyVoiceServer {
         outgoing.offer(new Outgoing(socket, addr, data));
     }
 
+    /** Готовый S2C-пакет конкретному игроку (аудиоканалы API). */
+    static void sendRaw(UUID playerId, byte[] data) {
+        Session s = byPlayer.get(playerId);
+        if (s != null) send(s.socket, s.addr, data);
+    }
+
+    /** Событие API о подключении (reason == null) или отключении — в серверном потоке. */
+    private static void postConnection(UUID playerId, VoiceConnectionEvent.Disconnected.Reason reason) {
+        MinecraftServer srv = server;
+        if (srv == null) return;
+        Runnable post = () -> {
+            ServerPlayer p = srv.getPlayerList().getPlayer(playerId);
+            try {
+                if (reason == null) {
+                    if (p != null && byPlayer.containsKey(playerId)) {
+                        MinecraftForge.EVENT_BUS.post(new VoiceConnectionEvent.Connected(playerId, p));
+                    }
+                } else {
+                    MinecraftForge.EVENT_BUS.post(new VoiceConnectionEvent.Disconnected(playerId, p, reason));
+                }
+            } catch (Throwable t) {
+                CozyVoiceChat.LOGGER.warn("[CozyVoice] VoiceConnectionEvent listener failed", t);
+            }
+        };
+        if (srv.isSameThread()) post.run(); else srv.execute(post);
+    }
+
+    public static boolean isConnected(UUID playerId) {
+        return playerId != null && byPlayer.containsKey(playerId);
+    }
+
+    public static Set<UUID> connectedPlayers() {
+        return Set.copyOf(byPlayer.keySet());
+    }
+
+    /** Говорит ли игрок (кадр за последние 400 мс). */
+    public static boolean isTalking(UUID playerId) {
+        Session s = playerId == null ? null : byPlayer.get(playerId);
+        return s != null && System.currentTimeMillis() - s.lastVoice <= 400;
+    }
+
     private static String nameOf(UUID id) {
         MinecraftServer srv = server;
         if (srv != null) {
@@ -438,6 +510,7 @@ public final class CozyVoiceServer {
         if (s != null) {
             sessions.remove(s.addr);
             CozyVoiceChat.LOGGER.info("[CozyVoice] {} отключился от голоса (вышел с сервера)", nameOf(playerId));
+            postConnection(playerId, VoiceConnectionEvent.Disconnected.Reason.LOGGED_OUT);
         }
     }
 

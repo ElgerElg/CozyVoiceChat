@@ -1,10 +1,13 @@
 plugins {
     id 'eclipse'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'maven-publish'
 }
 
 version = mod_version
-group = 'net.elgerelg.cozyvoicechat'
+// JitPack подставляет GROUP (com.github.ElgerElg) и VERSION (тег) — публикуемся под ними.
+group = System.getenv('GROUP') ?: 'net.elgerelg.cozyvoicechat'
+def publishVersion = System.getenv('JITPACK') ? (System.getenv('VERSION') ?: project.version) : project.version
 base {
     archivesName = 'cozyvoicechat'
 }
@@ -72,13 +75,141 @@ jar {
     ])
     // Обычный jar без вшитого кодека получает суффикс, основным считается jarJar-вариант.
     archiveClassifier = 'slim'
+    from('LICENSE')
 }
 
 tasks.jarJar.configure {
     archiveClassifier = ''
+    from('LICENSE')
 }
 
 tasks.build.dependsOn tasks.jarJar
+// reobf переписывает jarJar на месте — он обязан идти сразу после него и до публикации.
+tasks.jarJar.finalizedBy('reobfJarJar')
+
+// -------------------- публичный API для аддонов --------------------
+// Отдельный jar только с пакетом net.elgerelg.cozyvoicechat.api. Классы API не
+// обращаются к методам/полям Minecraft (типы MC — только в сигнатурах), поэтому
+// jar не зависит от маппингов и публикуется без reobf.
+
+def apiPackage = 'net/elgerelg/cozyvoicechat/api/**'
+
+tasks.register('apiJar', Jar) {
+    group = 'build'
+    description = 'Assembles the Cozy Voice Chat API jar for addon developers.'
+    archiveBaseName = 'cozyvoicechat-api'
+    archiveClassifier = ''
+    from(sourceSets.main.output) {
+        include apiPackage
+    }
+    from('LICENSE')
+    manifest.attributes([
+        'Specification-Title'     : 'cozyvoicechat-api',
+        'Specification-Vendor'    : 'ElgerElg',
+        'Specification-Version'   : '1',
+        'Implementation-Title'    : 'Cozy Voice Chat API',
+        'Implementation-Version'  : project.version,
+        'Implementation-Vendor'   : 'ElgerElg'
+    ])
+}
+
+tasks.register('apiSourcesJar', Jar) {
+    group = 'build'
+    description = 'Assembles the sources jar of the Cozy Voice Chat API.'
+    archiveBaseName = 'cozyvoicechat-api'
+    archiveClassifier = 'sources'
+    from(sourceSets.main.allJava) {
+        include apiPackage
+    }
+    from('LICENSE')
+}
+
+tasks.register('apiJavadoc', Javadoc) {
+    group = 'documentation'
+    description = 'Generates Javadoc for the Cozy Voice Chat API.'
+    source = sourceSets.main.allJava.matching { include apiPackage }
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+    destinationDir = layout.buildDirectory.dir('docs/api-javadoc').get().asFile
+    failOnError = false
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    title = "Cozy Voice Chat API ${project.version}"
+}
+
+tasks.register('apiJavadocJar', Jar) {
+    group = 'build'
+    description = 'Assembles the Javadoc jar of the Cozy Voice Chat API.'
+    archiveBaseName = 'cozyvoicechat-api'
+    archiveClassifier = 'javadoc'
+    dependsOn tasks.apiJavadoc
+    from(tasks.apiJavadoc.destinationDir)
+    from('LICENSE')
+}
+
+tasks.register('modSourcesJar', Jar) {
+    group = 'build'
+    description = 'Assembles the sources jar of the whole mod.'
+    archiveClassifier = 'sources'
+    from(sourceSets.main.allSource)
+    from('LICENSE')
+}
+
+tasks.assemble.dependsOn tasks.apiJar, tasks.apiSourcesJar, tasks.modSourcesJar
+
+def configurePom = { pom, String pomName, String pomDescription ->
+    pom.name = pomName
+    pom.description = pomDescription
+    pom.url = 'https://github.com/ElgerElg/CozyVoiceChat'
+    pom.licenses {
+        license {
+            name = 'MIT'
+            url = 'https://opensource.org/licenses/MIT'
+            distribution = 'repo'
+        }
+    }
+    pom.developers {
+        developer {
+            id = 'ElgerElg'
+            name = 'ElgerElg'
+        }
+    }
+    pom.scm {
+        url = 'https://github.com/ElgerElg/CozyVoiceChat'
+        connection = 'scm:git:https://github.com/ElgerElg/CozyVoiceChat.git'
+    }
+}
+
+publishing {
+    publications {
+        // Только API: compileOnly-зависимость аддонов.
+        api(MavenPublication) {
+            groupId = project.group
+            artifactId = 'cozyvoicechat-api'
+            version = publishVersion
+            artifact tasks.apiJar
+            artifact tasks.apiSourcesJar
+            artifact tasks.apiJavadocJar
+            configurePom(pom, 'Cozy Voice Chat API', 'Public API for Cozy Voice Chat addons (Forge 1.20.1).')
+        }
+        // Мод целиком (jarJar-вариант с Concentus) — для запуска в dev-окружении аддона.
+        mod(MavenPublication) {
+            groupId = project.group
+            artifactId = 'cozyvoicechat'
+            version = publishVersion
+            artifact tasks.jarJar   // reobf runs before publishing, see below
+            artifact tasks.modSourcesJar
+            configurePom(pom, 'Cozy Voice Chat', 'Lightweight proximity voice chat for Forge 1.20.1.')
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
+// Публикуем уже reobf-нутый jar (SRG-имена), как ждёт fg.deobf у потребителя.
+tasks.withType(AbstractPublishToMaven).configureEach {
+    dependsOn 'reobfJarJar'
+}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

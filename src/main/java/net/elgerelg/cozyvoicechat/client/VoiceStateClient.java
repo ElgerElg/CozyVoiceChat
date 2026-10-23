@@ -2,6 +2,8 @@ package net.elgerelg.cozyvoicechat.client;
 
 import net.elgerelg.cozyvoicechat.CozyVoiceNetwork;
 import net.elgerelg.cozyvoicechat.VoiceStatePacket;
+import net.elgerelg.cozyvoicechat.api.event.client.ClientLocalVoiceStateEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 
 import java.util.Map;
@@ -51,5 +53,6 @@ public final class VoiceStateClient {
         } catch (Throwable ignored) {
             // не подключены к серверу — состояние уедет при следующем входе
         }
+        MinecraftForge.EVENT_BUS.post(new ClientLocalVoiceStateEvent(cfg.micMuted, cfg.deafened));
     }
 }
