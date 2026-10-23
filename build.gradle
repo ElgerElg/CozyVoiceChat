@@ -1,0 +1,85 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+version = mod_version
+group = 'net.elgerelg.cozyvoicechat'
+base {
+    archivesName = 'cozyvoicechat'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// jarJar: вшиваем Opus-кодек Concentus в итоговый jar (META-INF/jarjar/concentus-*.jar)
+jarJar.enable()
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                cozyvoicechat {
+                    source sourceSets.main
+                }
+            }
+        }
+        client {}
+        server {
+            args '--nogui'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+
+    // Opus-кодек (чистая Java). implementation — для компиляции и dev-рана,
+    // jarJar — чтобы библиотека была внутри собранного мода на проде.
+    implementation 'io.github.jaredmdobson:concentus:1.0.2'
+    // В dev-ране Forge не видит обычные библиотеки на classpath модуля — добавляем явно.
+    minecraftLibrary 'io.github.jaredmdobson:concentus:1.0.2'
+    jarJar(group: 'io.github.jaredmdobson', name: 'concentus', version: '[1.0.2,1.1)') {
+        jarJar.pin(it, '1.0.2')
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.version
+    }
+}
+
+jar {
+    manifest.attributes([
+        'Specification-Title'     : 'cozyvoicechat',
+        'Specification-Vendor'    : 'ElgerElg',
+        'Specification-Version'   : '1',
+        'Implementation-Title'    : 'Cozy Voice Chat',
+        'Implementation-Version'  : project.version,
+        'Implementation-Vendor'   : 'ElgerElg'
+    ])
+    // Обычный jar без вшитого кодека получает суффикс, основным считается jarJar-вариант.
+    archiveClassifier = 'slim'
+}
+
+tasks.jarJar.configure {
+    archiveClassifier = ''
+}
+
+tasks.build.dependsOn tasks.jarJar
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="cozyvoicechat"
+version="${version}"
+displayName="Cozy Voice Chat"
+authors="ElgerElg"
+credits="Opus codec: Concentus (pure Java)"
+#displayURL="https://modrinth.com/mod/cozy-voice-chat"
+description='''
+Cozy Voice Chat is a lightweight proximity voice chat for Forge.
+Positional 3D voice over its own UDP relay, push-to-talk or voice activation,
+noise suppression, per-player volume, mute/deafen, radio and echo effects,
+voice-blocking blocks and admin commands (/cozyvoice). Opus via Concentus (pure Java, no natives).
+Must be installed on both the server and the client. Languages: English, Русский, Українська.
+'''
+
+[[dependencies.cozyvoicechat]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.cozyvoicechat]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1]"
+ordering="NONE"
+side="BOTH"

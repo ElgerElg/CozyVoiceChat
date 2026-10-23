@@ -1,0 +1,28 @@
+# Cozy Voice Chat .gitignore
+# Gradle / build output
+.gradle/
+build/
+out/
+run/
+runs/
+logs/
+*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Personal notes
+FORGITHUB.txt
