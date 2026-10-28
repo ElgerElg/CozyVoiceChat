@@ -82,7 +82,9 @@ loadScripts(document, 'script');</script>
      <li><a href="#server()"><code>server()</code></a>: queries and actions on the logical server (mutes, effects,
      groups, custom audio channels);</li>
      <li><a href="#client()"><code>client()</code></a>: the local client (talking state, levels, local mute/deafen);</li>
-     <li><a href="#createEncoder()"><code>createEncoder()</code></a> / <a href="#createDecoder()"><code>createDecoder()</code></a>: the Opus codec used by the mod.</li>
+     <li><a href="#createEncoder()"><code>createEncoder()</code></a> / <a href="#createDecoder()"><code>createDecoder()</code></a>: the Opus codec used by the mod;</li>
+     <li><a href="#getAddons()"><code>getAddons()</code></a>: addons registered with
+     <a href="addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>@CozyVoiceAddon</code></a>.</li>
  </ul>
 
  <p>Events are regular Forge events posted on <code>MinecraftForge.EVENT_BUS</code>; see the
@@ -171,39 +173,45 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns the API instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getApiVersion()" class="member-name-link">getApiVersion</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getAddons()" class="member-name-link">getAddons</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Addons found through the <a href="addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> annotation and
+ registered successfully, in registration order.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getApiVersion()" class="member-name-link">getApiVersion</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">API version implemented by the installed mod.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getModVersion()" class="member-name-link">getModVersion</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getModVersion()" class="member-name-link">getModVersion</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Version of the installed mod, as written in its <code>mods.toml</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#isAvailable()" class="member-name-link">isAvailable</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#isAvailable()" class="member-name-link">isAvailable</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Checks whether the full mod (not only the API jar) is present.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#registerRouteHook(net.elgerelg.cozyvoicechat.api.VoiceRouteHook)" class="member-name-link">registerRouteHook</a><wbr>(<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&nbsp;hook)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#registerRouteHook(net.elgerelg.cozyvoicechat.api.VoiceRouteHook)" class="member-name-link">registerRouteHook</a><wbr>(<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&nbsp;hook)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Registers a server-side routing hook.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#routeHooks()" class="member-name-link">routeHooks</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#routeHooks()" class="member-name-link">routeHooks</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">All registered routing hooks, in registration order.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="server/ServerVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api.server">ServerVoiceApi</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#server()" class="member-name-link">server</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="server/ServerVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api.server">ServerVoiceApi</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#server()" class="member-name-link">server</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Server-side API.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#unregisterRouteHook(net.elgerelg.cozyvoicechat.api.VoiceRouteHook)" class="member-name-link">unregisterRouteHook</a><wbr>(<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&nbsp;hook)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#unregisterRouteHook(net.elgerelg.cozyvoicechat.api.VoiceRouteHook)" class="member-name-link">unregisterRouteHook</a><wbr>(<a href="VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api">VoiceRouteHook</a>&nbsp;hook)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Removes a previously registered routing hook.</div>
 </div>
 </div>
@@ -415,6 +423,26 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the Opus codec could not be initialised</dd>
 <dt>Since:</dt>
 <dd>1.1.0</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getAddons()">
+<h3>getAddons</h3>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a>&gt;</span>&nbsp;<span class="element-name">getAddons</span>()</div>
+<div class="block">Addons found through the <a href="addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> annotation and
+ registered successfully, in registration order. Empty until common setup has finished.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>an unmodifiable snapshot</dd>
+<dt>Since:</dt>
+<dd>1.1.0</dd>
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoicePlugin</code></a></li>
+</ul>
+</dd>
 </dl>
 </section>
 </li>

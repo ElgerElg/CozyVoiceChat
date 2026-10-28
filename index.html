@@ -129,6 +129,23 @@ music.onStopped(speaker::close);
 music.start();
 </code></pre>
 
+<h2>6. Register your addon (optional)</h2>
+<pre><code>
+@CozyVoiceAddon
+public final class MyVoiceAddon implements CozyVoicePlugin {
+    @Override public String getId() { return "myaddon"; }
+
+    @Override public void onRegister(CozyVoiceApi api) {
+        MinecraftForge.EVENT_BUS.register(MyVoiceEvents.class);
+    }
+}
+</code></pre>
+<p>Cozy Voice Chat finds annotated classes in Forge's scan data during common setup, creates them and calls
+<a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html#onRegister(net.elgerelg.cozyvoicechat.api.CozyVoiceApi)"><code>CozyVoicePlugin.onRegister(net.elgerelg.cozyvoicechat.api.CozyVoiceApi)</code></a>.
+They are listed in the log, by <code>/cozyvoice addons</code> and by
+<a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#getAddons()"><code>CozyVoiceApi.getAddons()</code></a>. See <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a>.
+A complete example: <a href="https://github.com/ElgerElg/CozyVoiceChat-SampleAddon">CozyVoiceChat-SampleAddon</a>.</p>
+
 <h1>Threads</h1>
 <table class="striped">
 <caption>Where each callback runs</caption>
@@ -143,7 +160,7 @@ music.start();
 </tbody>
 </table></div>
 <div id="all-packages-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-packages-table-tab0" role="tab" aria-selected="true" aria-controls="all-packages-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table', 2)" class="active-table-tab">All Packages</button><button id="all-packages-table-tab1" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab1', 2)" class="table-tab">Entry point</button><button id="all-packages-table-tab2" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab2', 2)" class="table-tab">Server</button><button id="all-packages-table-tab3" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab3', 2)" class="table-tab">Client</button><button id="all-packages-table-tab4" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab4', 2)" class="table-tab">Audio</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-packages-table-tab0" role="tab" aria-selected="true" aria-controls="all-packages-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table', 2)" class="active-table-tab">All Packages</button><button id="all-packages-table-tab1" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab1', 2)" class="table-tab">Entry point</button><button id="all-packages-table-tab2" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab2', 2)" class="table-tab">Server</button><button id="all-packages-table-tab3" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab3', 2)" class="table-tab">Client</button><button id="all-packages-table-tab4" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab4', 2)" class="table-tab">Audio</button><button id="all-packages-table-tab5" role="tab" aria-selected="false" aria-controls="all-packages-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-packages-table', 'all-packages-table-tab5', 2)" class="table-tab">Addons</button></div>
 <div id="all-packages-table.tabpanel" role="tabpanel" aria-labelledby="all-packages-table-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Package</div>
@@ -154,24 +171,30 @@ music.start();
  the <a href="net/elgerelg/cozyvoicechat/api/VoiceCategory.html" title="class in net.elgerelg.cozyvoicechat.api"><code>audio categories</code></a> and the
  <a href="net/elgerelg/cozyvoicechat/api/VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api"><code>routing hook</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-packages-table all-packages-table-tab4"><a href="net/elgerelg/cozyvoicechat/api/audio/package-summary.html">net.elgerelg.cozyvoicechat.api.audio</a></div>
-<div class="col-last odd-row-color all-packages-table all-packages-table-tab4">
+<div class="col-first odd-row-color all-packages-table all-packages-table-tab5"><a href="net/elgerelg/cozyvoicechat/api/addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a></div>
+<div class="col-last odd-row-color all-packages-table all-packages-table-tab5">
+<div class="block">Addon discovery: annotate a <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoicePlugin</code></a> implementation with
+ <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> and Cozy Voice Chat finds, creates and
+ registers it during common setup.</div>
+</div>
+<div class="col-first even-row-color all-packages-table all-packages-table-tab4"><a href="net/elgerelg/cozyvoicechat/api/audio/package-summary.html">net.elgerelg.cozyvoicechat.api.audio</a></div>
+<div class="col-last even-row-color all-packages-table all-packages-table-tab4">
 <div class="block">Audio format constants and Opus codec wrappers, so addons don't need a codec dependency of their own.</div>
 </div>
-<div class="col-first even-row-color all-packages-table all-packages-table-tab3"><a href="net/elgerelg/cozyvoicechat/api/client/package-summary.html">net.elgerelg.cozyvoicechat.api.client</a></div>
-<div class="col-last even-row-color all-packages-table all-packages-table-tab3">
+<div class="col-first odd-row-color all-packages-table all-packages-table-tab3"><a href="net/elgerelg/cozyvoicechat/api/client/package-summary.html">net.elgerelg.cozyvoicechat.api.client</a></div>
+<div class="col-last odd-row-color all-packages-table all-packages-table-tab3">
 <div class="block">Client-side API for the local player, from <a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#client()"><code>CozyVoiceApi.client()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-packages-table all-packages-table-tab2"><a href="net/elgerelg/cozyvoicechat/api/event/package-summary.html">net.elgerelg.cozyvoicechat.api.event</a></div>
-<div class="col-last odd-row-color all-packages-table all-packages-table-tab2">
+<div class="col-first even-row-color all-packages-table all-packages-table-tab2"><a href="net/elgerelg/cozyvoicechat/api/event/package-summary.html">net.elgerelg.cozyvoicechat.api.event</a></div>
+<div class="col-last even-row-color all-packages-table all-packages-table-tab2">
 <div class="block">Server-side Forge events, posted on <code>MinecraftForge.EVENT_BUS</code>.</div>
 </div>
-<div class="col-first even-row-color all-packages-table all-packages-table-tab3"><a href="net/elgerelg/cozyvoicechat/api/event/client/package-summary.html">net.elgerelg.cozyvoicechat.api.event.client</a></div>
-<div class="col-last even-row-color all-packages-table all-packages-table-tab3">
+<div class="col-first odd-row-color all-packages-table all-packages-table-tab3"><a href="net/elgerelg/cozyvoicechat/api/event/client/package-summary.html">net.elgerelg.cozyvoicechat.api.event.client</a></div>
+<div class="col-last odd-row-color all-packages-table all-packages-table-tab3">
 <div class="block">Client-side Forge events, posted on <code>MinecraftForge.EVENT_BUS</code> on the physical client only.</div>
 </div>
-<div class="col-first odd-row-color all-packages-table all-packages-table-tab2"><a href="net/elgerelg/cozyvoicechat/api/server/package-summary.html">net.elgerelg.cozyvoicechat.api.server</a></div>
-<div class="col-last odd-row-color all-packages-table all-packages-table-tab2">
+<div class="col-first even-row-color all-packages-table all-packages-table-tab2"><a href="net/elgerelg/cozyvoicechat/api/server/package-summary.html">net.elgerelg.cozyvoicechat.api.server</a></div>
+<div class="col-last even-row-color all-packages-table all-packages-table-tab2">
 <div class="block">Server-side API, from <a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#server()"><code>CozyVoiceApi.server()</code></a>: status queries,
  mutes, <a href="net/elgerelg/cozyvoicechat/api/server/VoiceEffect.html" title="enum class in net.elgerelg.cozyvoicechat.api.server"><code>effects</code></a>,
  <a href="net/elgerelg/cozyvoicechat/api/server/VoiceGroup.html" title="interface in net.elgerelg.cozyvoicechat.api.server"><code>groups</code></a> and addon

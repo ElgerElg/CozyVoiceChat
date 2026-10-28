@@ -56,6 +56,15 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds a member, moving them out of any other group.</div>
 </dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" class="type-name-link" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a> - Record Class in <a href="net/elgerelg/cozyvoicechat/api/addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a></dt>
+<dd>
+<div class="block">A registered addon, as listed by <a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#getAddons()"><code>CozyVoiceApi.getAddons()</code></a>
+ and <code>/cozyvoice addons</code>.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">AddonInfo(String, String, String, String)</a> - Constructor for record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>AddonInfo</code> record class.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/StaticAudioChannel.html#addTarget(java.util.UUID)" class="member-name-link">addTarget(UUID)</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/StaticAudioChannel.html" title="interface in net.elgerelg.cozyvoicechat.api.server">StaticAudioChannel</a></dt>
 <dd>
 <div class="block">Adds a listener.</div>
@@ -95,6 +104,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="net/elgerelg/cozyvoicechat/api/audio/VoiceAudioFormat.html#CHANNELS" class="member-name-link">CHANNELS</a> - Static variable in class net.elgerelg.cozyvoicechat.api.audio.<a href="net/elgerelg/cozyvoicechat/api/audio/VoiceAudioFormat.html" title="class in net.elgerelg.cozyvoicechat.api.audio">VoiceAudioFormat</a></dt>
 <dd>
 <div class="block">Number of channels (mono).</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#className()" class="member-name-link">className()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#param-className"><code>className</code></a> record component.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/StaticAudioChannel.html#clearTargets()" class="member-name-link">clearTargets()</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/StaticAudioChannel.html" title="interface in net.elgerelg.cozyvoicechat.api.server">StaticAudioChannel</a></dt>
 <dd>
@@ -184,9 +197,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Handshake sent, waiting for the relay to answer.</div>
 </dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoiceAddon.html" class="type-name-link" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon">CozyVoiceAddon</a> - Annotation Interface in <a href="net/elgerelg/cozyvoicechat/api/addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a></dt>
+<dd>
+<div class="block">Marks a class as a Cozy Voice Chat addon entry point, so the mod finds it automatically.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html" class="type-name-link" title="interface in net.elgerelg.cozyvoicechat.api">CozyVoiceApi</a> - Interface in <a href="net/elgerelg/cozyvoicechat/api/package-summary.html">net.elgerelg.cozyvoicechat.api</a></dt>
 <dd>
 <div class="block">Entry point of the Cozy Voice Chat addon API.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html" class="type-name-link" title="interface in net.elgerelg.cozyvoicechat.api.addon">CozyVoicePlugin</a> - Interface in <a href="net/elgerelg/cozyvoicechat/api/addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a></dt>
+<dd>
+<div class="block">Entry point of a Cozy Voice Chat addon.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html#createAudioPlayer(net.elgerelg.cozyvoicechat.api.server.AudioChannel,java.util.function.Supplier)" class="member-name-link">createAudioPlayer(AudioChannel, Supplier&lt;short[]&gt;)</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api.server">ServerVoiceApi</a></dt>
 <dd>
@@ -255,6 +276,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Audio that follows an entity (a talking mob, a boombox carried by a player, a minecart radio).</div>
 </dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html" title="class in net.elgerelg.cozyvoicechat.api.server">VoiceTarget</a></dt>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
@@ -284,6 +309,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#get()" class="member-name-link">get()</a> - Static method in interface net.elgerelg.cozyvoicechat.api.<a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api">CozyVoiceApi</a></dt>
 <dd>
 <div class="block">Returns the API instance.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#getAddons()" class="member-name-link">getAddons()</a> - Method in interface net.elgerelg.cozyvoicechat.api.<a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api">CozyVoiceApi</a></dt>
+<dd>
+<div class="block">Addons found through the <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> annotation and
+ registered successfully, in registration order.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html#getApiVersion()" class="member-name-link">getApiVersion()</a> - Method in interface net.elgerelg.cozyvoicechat.api.<a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api">CozyVoiceApi</a></dt>
 <dd>
@@ -348,6 +378,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html#getGroups()" class="member-name-link">getGroups()</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api.server">ServerVoiceApi</a></dt>
 <dd>
 <div class="block">All groups.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html#getId()" class="member-name-link">getId()</a> - Method in interface net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon">CozyVoicePlugin</a></dt>
+<dd>
+<div class="block">Unique id of the addon, shown in logs and in <code>/cozyvoice addons</code>.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/AudioChannel.html#getId()" class="member-name-link">getId()</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/AudioChannel.html" title="interface in net.elgerelg.cozyvoicechat.api.server">AudioChannel</a></dt>
 <dd>
@@ -488,6 +522,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Checks an effect.</div>
 </dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html" title="class in net.elgerelg.cozyvoicechat.api.server">VoiceTarget</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
@@ -499,6 +537,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#id()" class="member-name-link">id()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#param-id"><code>id</code></a> record component.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/VoiceEffect.html#id()" class="member-name-link">id()</a> - Method in enum class net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/VoiceEffect.html" title="enum class in net.elgerelg.cozyvoicechat.api.server">VoiceEffect</a></dt>
 <dd>
 <div class="block">Name used in the <code>/cozyvoice effect</code> command.</div>
@@ -669,6 +711,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Mod id of Cozy Voice Chat, for <code>mods.toml</code> dependencies and <code>ModList</code> checks.</div>
 </dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#modId()" class="member-name-link">modId()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#param-modId"><code>modId</code></a> record component.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#modVersion()" class="member-name-link">modVersion()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#param-modVersion"><code>modVersion</code></a> record component.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html#mute(java.util.UUID,long)" class="member-name-link">mute(UUID, long)</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/ServerVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api.server">ServerVoiceApi</a></dt>
 <dd>
 <div class="block">Mutes a player.</div>
@@ -681,6 +731,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Public API of Cozy Voice Chat: the entry point <a href="net/elgerelg/cozyvoicechat/api/CozyVoiceApi.html" title="interface in net.elgerelg.cozyvoicechat.api"><code>CozyVoiceApi</code></a>,
  the <a href="net/elgerelg/cozyvoicechat/api/VoiceCategory.html" title="class in net.elgerelg.cozyvoicechat.api"><code>audio categories</code></a> and the
  <a href="net/elgerelg/cozyvoicechat/api/VoiceRouteHook.html" title="interface in net.elgerelg.cozyvoicechat.api"><code>routing hook</code></a>.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a> - package net.elgerelg.cozyvoicechat.api.addon</dt>
+<dd>
+<div class="block">Addon discovery: annotate a <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoicePlugin</code></a> implementation with
+ <a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> and Cozy Voice Chat finds, creates and
+ registers it during common setup.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/audio/package-summary.html">net.elgerelg.cozyvoicechat.api.audio</a> - package net.elgerelg.cozyvoicechat.api.audio</dt>
 <dd>
@@ -708,6 +764,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html#onRegister(net.elgerelg.cozyvoicechat.api.CozyVoiceApi)" class="member-name-link">onRegister(CozyVoiceApi)</a> - Method in interface net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon">CozyVoicePlugin</a></dt>
+<dd>
+<div class="block">Called once when the addon is registered, during <code>FMLCommonSetupEvent</code> on the main thread.</div>
+</dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/AudioPlayer.html#onStopped(java.lang.Runnable)" class="member-name-link">onStopped(Runnable)</a> - Method in interface net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/AudioPlayer.html" title="interface in net.elgerelg.cozyvoicechat.api.server">AudioPlayer</a></dt>
 <dd>
 <div class="block">Runs a callback once the player stops for any reason.</div>
@@ -892,6 +952,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="net/elgerelg/cozyvoicechat/api/event/VoiceConnectionEvent.Disconnected.Reason.html#TIMED_OUT" class="member-name-link">TIMED_OUT</a> - Enum constant in enum class net.elgerelg.cozyvoicechat.api.event.<a href="net/elgerelg/cozyvoicechat/api/event/VoiceConnectionEvent.Disconnected.Reason.html" title="enum class in net.elgerelg.cozyvoicechat.api.event">VoiceConnectionEvent.Disconnected.Reason</a></dt>
 <dd>
 <div class="block">No packets for longer than the configured timeout.</div>
+</dd>
+<dt><a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html#toString()" class="member-name-link">toString()</a> - Method in record class net.elgerelg.cozyvoicechat.api.addon.<a href="net/elgerelg/cozyvoicechat/api/addon/AddonInfo.html" title="class in net.elgerelg.cozyvoicechat.api.addon">AddonInfo</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
 </dd>
 <dt><a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html#toString()" class="member-name-link">toString()</a> - Method in record class net.elgerelg.cozyvoicechat.api.server.<a href="net/elgerelg/cozyvoicechat/api/server/VoiceTarget.html" title="class in net.elgerelg.cozyvoicechat.api.server">VoiceTarget</a></dt>
 <dd>

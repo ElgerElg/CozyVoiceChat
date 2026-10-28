@@ -77,7 +77,9 @@ loadScripts(document, 'script');</script>
      <li><a href="event/package-summary.html"><code>net.elgerelg.cozyvoicechat.api.event</code></a> and
      <a href="event/client/package-summary.html"><code>net.elgerelg.cozyvoicechat.api.event.client</code></a> &ndash; Forge events on
      <code>MinecraftForge.EVENT_BUS</code>;</li>
-     <li><a href="audio/package-summary.html"><code>net.elgerelg.cozyvoicechat.api.audio</code></a> &ndash; audio format and Opus codec.</li>
+     <li><a href="audio/package-summary.html"><code>net.elgerelg.cozyvoicechat.api.audio</code></a> &ndash; audio format and Opus codec;</li>
+     <li><a href="addon/package-summary.html"><code>net.elgerelg.cozyvoicechat.api.addon</code></a> &ndash; automatic addon discovery
+     (<code>@CozyVoiceAddon</code>).</li>
  </ul>
 
  <p>Only <code>net.elgerelg.cozyvoicechat.api</code> and its subpackages are public API.
@@ -95,20 +97,26 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Package</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><a href="audio/package-summary.html">net.elgerelg.cozyvoicechat.api.audio</a></div>
+<div class="col-first even-row-color"><a href="addon/package-summary.html">net.elgerelg.cozyvoicechat.api.addon</a></div>
 <div class="col-last even-row-color">
+<div class="block">Addon discovery: annotate a <a href="addon/CozyVoicePlugin.html" title="interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoicePlugin</code></a> implementation with
+ <a href="addon/CozyVoiceAddon.html" title="annotation interface in net.elgerelg.cozyvoicechat.api.addon"><code>CozyVoiceAddon</code></a> and Cozy Voice Chat finds, creates and
+ registers it during common setup.</div>
+</div>
+<div class="col-first odd-row-color"><a href="audio/package-summary.html">net.elgerelg.cozyvoicechat.api.audio</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Audio format constants and Opus codec wrappers, so addons don't need a codec dependency of their own.</div>
 </div>
-<div class="col-first odd-row-color"><a href="client/package-summary.html">net.elgerelg.cozyvoicechat.api.client</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="client/package-summary.html">net.elgerelg.cozyvoicechat.api.client</a></div>
+<div class="col-last even-row-color">
 <div class="block">Client-side API for the local player, from <a href="CozyVoiceApi.html#client()"><code>CozyVoiceApi.client()</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><a href="event/package-summary.html">net.elgerelg.cozyvoicechat.api.event</a></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><a href="event/package-summary.html">net.elgerelg.cozyvoicechat.api.event</a></div>
+<div class="col-last odd-row-color">
 <div class="block">Server-side Forge events, posted on <code>MinecraftForge.EVENT_BUS</code>.</div>
 </div>
-<div class="col-first odd-row-color"><a href="server/package-summary.html">net.elgerelg.cozyvoicechat.api.server</a></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><a href="server/package-summary.html">net.elgerelg.cozyvoicechat.api.server</a></div>
+<div class="col-last even-row-color">
 <div class="block">Server-side API, from <a href="CozyVoiceApi.html#server()"><code>CozyVoiceApi.server()</code></a>: status queries,
  mutes, <a href="server/VoiceEffect.html" title="enum class in net.elgerelg.cozyvoicechat.api.server"><code>effects</code></a>,
  <a href="server/VoiceGroup.html" title="interface in net.elgerelg.cozyvoicechat.api.server"><code>groups</code></a> and addon
