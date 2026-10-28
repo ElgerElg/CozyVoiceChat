@@ -77,7 +77,49 @@ if (ModList.get().isLoaded(CozyVoiceApi.MOD_ID)) {
 - `api.getApiVersion()` returns the API version of the *installed* mod: compare it with the constant you compiled
   against if you use features from a newer API.
 - **Events** are normal Forge events on `MinecraftForge.EVENT_BUS`. Subscribe with `@SubscribeEvent`/
-  `@Mod.EventBusSubscriber` as usual. There is no separate plugin system or annotation scanning.
+  `@Mod.EventBusSubscriber` as usual.
+- Optionally, register your addon with `@CozyVoiceAddon` (see [Addon registration](#addon-registration)) so it is
+  listed in the log and in `/cozyvoice addons`.
+
+### Addon registration
+
+Annotate a class that implements `CozyVoicePlugin` with `@CozyVoiceAddon` (package `net.elgerelg.cozyvoicechat.api.addon`).
+Cozy Voice Chat finds it automatically, there is nothing to call:
+
+```java
+@CozyVoiceAddon
+public final class MyVoiceAddon implements CozyVoicePlugin {
+    @Override
+    public String getId() {
+        return "myaddon";                     // shown in logs and /cozyvoice addons
+    }
+
+    @Override
+    public void onRegister(CozyVoiceApi api) {
+        MinecraftForge.EVENT_BUS.register(MyVoiceEvents.class);
+        api.server().registerRouteHook(new MyRouteHook());
+    }
+}
+```
+
+How it works:
+
+1. During `FMLCommonSetupEvent` (on the main thread, via `enqueueWork`) the mod reads Forge's annotation scan data of every
+   loaded mod file (`ModList.get().getAllScanData()`) and collects the classes annotated with `@CozyVoiceAddon`.
+2. Each class is loaded, checked (must implement `CozyVoicePlugin`, be non-abstract and have a public no-arg
+   constructor) and instantiated once.
+3. `onRegister(api)` is called. If it throws, the error is logged and that addon is skipped; the game keeps running.
+   Duplicate ids are skipped with a warning.
+4. The log gets a line like `[Cozy Voice] Found 1 addon(s): myaddon (mod mymod 1.0.0)`.
+5. `/cozyvoice addons` (permission level 2) and `CozyVoiceApi.get().getAddons()` (a list of `AddonInfo`: `id`,
+   `modId`, `modVersion`, `className`) list the registered addons.
+
+Notes: the plugin class is created on both sides, so keep client-only code (rendering, `Minecraft`) out of it or behind a
+`FMLEnvironment.dist` check. No server is running during `onRegister`; create groups or audio channels later, e.g. in
+`ServerStartedEvent`. Because the class is only loaded when Cozy Voice Chat is present, it is also a convenient place for API
+calls when the dependency is optional. Using the annotation is optional.
+
+A complete example addon: [ElgerElg/CozyVoiceChat-SampleAddon](https://github.com/ElgerElg/CozyVoiceChat-SampleAddon).
 
 ### Threads
 
@@ -99,7 +141,7 @@ Voice is real-time and most of it runs off the main thread. Every event and meth
 ### `api` — entry point
 | Type | Purpose |
 |---|---|
-| `CozyVoiceApi` | `get()`, `API_VERSION`, `MOD_ID`, `server()`, `client()`, Opus `createEncoder()/createDecoder()` |
+| `CozyVoiceApi` | `get()`, `isAvailable()`, `API_VERSION`, `MOD_ID`, `server()`, `client()`, Opus `createEncoder()/createDecoder()`, `getAddons()` |
 | `VoiceRouteHook` | low-level routing hook (mutes, spectators, exclusive or extra routes) |
 | `VoiceCategory` | audio categories: `PROXIMITY`, `GLOBAL`, `RADIO`, `CCTV`; 4–15 free for addons |
 
@@ -137,6 +179,10 @@ Voice is real-time and most of it runs off the main thread. Every event and meth
 | `ClientVoiceConnectionEvent` | connection status changed | no |
 | `ClientLocalVoiceStateEvent` | local mic mute / deafen changed | no |
 | `ClientVoiceSettingsChangedEvent` | voice settings were saved | no |
+
+### `api.addon`
+`@CozyVoiceAddon`, `CozyVoicePlugin` (`getId()`, `onRegister(CozyVoiceApi)`), `AddonInfo`; see
+[Addon registration](#addon-registration).
 
 ### `api.audio`
 `VoiceAudioFormat` (48 kHz, mono, 960-sample/20 ms frames), `VoiceEncoder`, `VoiceDecoder` (Opus, from

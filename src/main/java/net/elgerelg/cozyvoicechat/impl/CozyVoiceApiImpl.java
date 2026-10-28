@@ -2,6 +2,7 @@ package net.elgerelg.cozyvoicechat.impl;
 
 import net.elgerelg.cozyvoicechat.CozyVoiceChat;
 import net.elgerelg.cozyvoicechat.api.CozyVoiceApi;
+import net.elgerelg.cozyvoicechat.api.addon.AddonInfo;
 import net.elgerelg.cozyvoicechat.api.audio.VoiceDecoder;
 import net.elgerelg.cozyvoicechat.api.audio.VoiceEncoder;
 import net.elgerelg.cozyvoicechat.api.client.ClientVoiceApi;
@@ -11,6 +12,8 @@ import net.elgerelg.cozyvoicechat.server.CozyVoiceServerConfig;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+
+import java.util.List;
 
 /**
  * Internal implementation of {@link CozyVoiceApi}; found by {@code CozyVoiceApi.get()} via reflection.
@@ -81,5 +84,10 @@ public final class CozyVoiceApiImpl implements CozyVoiceApi {
     @Override
     public VoiceDecoder createDecoder() {
         return new Codecs.Decoder();
+    }
+
+    @Override
+    public List<AddonInfo> getAddons() {
+        return AddonLoader.addons();
     }
 }

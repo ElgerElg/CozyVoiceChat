@@ -12,7 +12,9 @@
  *     <li>{@link net.elgerelg.cozyvoicechat.api.event} and
  *     {@link net.elgerelg.cozyvoicechat.api.event.client} &ndash; Forge events on
  *     {@code MinecraftForge.EVENT_BUS};</li>
- *     <li>{@link net.elgerelg.cozyvoicechat.api.audio} &ndash; audio format and Opus codec.</li>
+ *     <li>{@link net.elgerelg.cozyvoicechat.api.audio} &ndash; audio format and Opus codec;</li>
+ *     <li>{@link net.elgerelg.cozyvoicechat.api.addon} &ndash; automatic addon discovery
+ *     ({@code @CozyVoiceAddon}).</li>
  * </ul>
  *
  * <p>Only {@code net.elgerelg.cozyvoicechat.api} and its subpackages are public API.

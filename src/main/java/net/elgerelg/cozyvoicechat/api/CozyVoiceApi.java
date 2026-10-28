@@ -1,5 +1,6 @@
 package net.elgerelg.cozyvoicechat.api;
 
+import net.elgerelg.cozyvoicechat.api.addon.AddonInfo;
 import net.elgerelg.cozyvoicechat.api.audio.VoiceDecoder;
 import net.elgerelg.cozyvoicechat.api.audio.VoiceEncoder;
 import net.elgerelg.cozyvoicechat.api.client.ClientVoiceApi;
@@ -17,7 +18,9 @@ import java.util.List;
  *     <li>{@link #server()}: queries and actions on the logical server (mutes, effects,
  *     groups, custom audio channels);</li>
  *     <li>{@link #client()}: the local client (talking state, levels, local mute/deafen);</li>
- *     <li>{@link #createEncoder()} / {@link #createDecoder()}: the Opus codec used by the mod.</li>
+ *     <li>{@link #createEncoder()} / {@link #createDecoder()}: the Opus codec used by the mod;</li>
+ *     <li>{@link #getAddons()}: addons registered with
+ *     {@link net.elgerelg.cozyvoicechat.api.addon.CozyVoiceAddon @CozyVoiceAddon}.</li>
  * </ul>
  *
  * <p>Events are regular Forge events posted on {@code MinecraftForge.EVENT_BUS}; see the
@@ -148,6 +151,16 @@ public interface CozyVoiceApi {
      * @since 1.1.0
      */
     VoiceDecoder createDecoder();
+
+    /**
+     * Addons found through the {@link net.elgerelg.cozyvoicechat.api.addon.CozyVoiceAddon} annotation and
+     * registered successfully, in registration order. Empty until common setup has finished.
+     *
+     * @return an unmodifiable snapshot
+     * @see net.elgerelg.cozyvoicechat.api.addon.CozyVoicePlugin
+     * @since 1.1.0
+     */
+    List<AddonInfo> getAddons();
 
     // ------------------------------------------------------------------
     // Route hooks (API 0 / mod 1.0.0, kept for backwards compatibility)

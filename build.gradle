@@ -149,6 +149,7 @@ tasks.register('apiJavadoc', Javadoc) {
         group('Server', ['net.elgerelg.cozyvoicechat.api.server', 'net.elgerelg.cozyvoicechat.api.event'])
         group('Client', ['net.elgerelg.cozyvoicechat.api.client', 'net.elgerelg.cozyvoicechat.api.event.client'])
         group('Audio', ['net.elgerelg.cozyvoicechat.api.audio'])
+        group('Addons', ['net.elgerelg.cozyvoicechat.api.addon'])
         // doclint: всё, кроме отсутствующих ссылок на внешние (Forge/MC) javadoc. -PjavadocLint=all — полный аудит.
         addStringOption("Xdoclint:${project.findProperty('javadocLint') ?: 'all,-missing'}", '-quiet')
         addStringOption('Xmaxwarns', '10000')

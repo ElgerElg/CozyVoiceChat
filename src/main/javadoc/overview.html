@@ -78,6 +78,23 @@ music.onStopped(speaker::close);
 music.start();
 }</pre>
 
+<h2>6. Register your addon (optional)</h2>
+<pre>{@code
+@CozyVoiceAddon
+public final class MyVoiceAddon implements CozyVoicePlugin {
+    @Override public String getId() { return "myaddon"; }
+
+    @Override public void onRegister(CozyVoiceApi api) {
+        MinecraftForge.EVENT_BUS.register(MyVoiceEvents.class);
+    }
+}
+}</pre>
+<p>Cozy Voice Chat finds annotated classes in Forge's scan data during common setup, creates them and calls
+{@link net.elgerelg.cozyvoicechat.api.addon.CozyVoicePlugin#onRegister(net.elgerelg.cozyvoicechat.api.CozyVoiceApi)}.
+They are listed in the log, by <code>/cozyvoice addons</code> and by
+{@link net.elgerelg.cozyvoicechat.api.CozyVoiceApi#getAddons()}. See {@link net.elgerelg.cozyvoicechat.api.addon.CozyVoiceAddon}.
+A complete example: <a href="https://github.com/ElgerElg/CozyVoiceChat-SampleAddon">CozyVoiceChat-SampleAddon</a>.</p>
+
 <h1>Threads</h1>
 <table class="striped">
 <caption>Where each callback runs</caption>

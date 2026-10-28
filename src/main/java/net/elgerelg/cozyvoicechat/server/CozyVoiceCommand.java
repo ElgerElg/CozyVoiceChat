@@ -6,6 +6,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.elgerelg.cozyvoicechat.CozyVoiceChat;
+import net.elgerelg.cozyvoicechat.api.CozyVoiceApi;
+import net.elgerelg.cozyvoicechat.api.addon.AddonInfo;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -34,7 +36,7 @@ import static net.minecraft.commands.Commands.literal;
 /**
  * /cozyvoice — админ-команда голосового чата (уровень прав 2).
  * Голосовая часть бывшей /cmdvoice из Union-MC SCP-RP:
- *   debug, reload, effect, hearself, passthrough, mute/unmute/mutelist.
+ *   debug, reload, effect, hearself, passthrough, mute/unmute/mutelist, addons.
  * Глобальный микрофон, регионы WorldGuard и рации остались в SCP-RP.
  */
 @Mod.EventBusSubscriber(modid = CozyVoiceChat.MODID)
@@ -114,7 +116,8 @@ public final class CozyVoiceCommand {
                         ctx.getSource().sendSuccess(() -> msg("cozyvoicechat.command.unmute.done", fn), true);
                         return Math.max(1, n);
                     })))
-            .then(literal("mutelist").executes(ctx -> muteList(ctx.getSource()))));
+            .then(literal("mutelist").executes(ctx -> muteList(ctx.getSource())))
+            .then(literal("addons").executes(ctx -> addons(ctx.getSource()))));
     }
 
     private static int debug(CommandSourceStack source) {
@@ -158,6 +161,22 @@ public final class CozyVoiceCommand {
                 : Component.translatable("cozyvoicechat.command.mute.seconds", seconds);
         source.sendSuccess(() -> msg("cozyvoicechat.command.mute.done", ps.size(), time), true);
         return ps.size();
+    }
+
+    private static int addons(CommandSourceStack source) {
+        List<AddonInfo> list = CozyVoiceApi.get().getAddons();
+        if (list.isEmpty()) {
+            source.sendSuccess(() -> msg("cozyvoicechat.command.addons.empty"), false);
+            return 1;
+        }
+        MutableComponent joined = Component.empty();
+        for (int i = 0; i < list.size(); i++) {
+            AddonInfo a = list.get(i);
+            if (i > 0) joined.append(", ");
+            joined.append(Component.translatable("cozyvoicechat.command.addons.entry", a.id(), a.modId(), a.modVersion()));
+        }
+        source.sendSuccess(() -> msg("cozyvoicechat.command.addons.list", list.size(), joined), false);
+        return list.size();
     }
 
     private static int muteList(CommandSourceStack source) {
