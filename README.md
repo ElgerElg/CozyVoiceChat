@@ -93,6 +93,91 @@ See **[API.md](API.md)** for setup, the full overview and examples.
 
 📖 **JavaDoc:** https://elgerelg.github.io/CozyVoiceChat/ (API reference for every public class, generated from the sources).
 
+🧩 **Sample addon:** https://github.com/ElgerElg/CozyVoiceChat-SampleAddon (coming soon): a complete, buildable example
+(addon registration, microphone events, custom routing, server-side sounds, groups, a talking HUD and a voice changer).
+
+### Developing addons
+
+**1. Add the API to your Forge 1.20.1 project** (`compileOnly`: the API is provided at runtime by the installed mod, do not
+bundle it):
+
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly 'com.github.ElgerElg.CozyVoiceChat:cozyvoicechat-api:<tag>'
+}
+```
+
+Or, without JitPack, build this repository (`./gradlew build`) and use the local API jar:
+
+```gradle
+dependencies {
+    compileOnly files('libs/cozyvoicechat-api-1.1.0.jar')
+}
+```
+
+**2. Declare the dependency in `META-INF/mods.toml`** (`mandatory=false` keeps your mod loadable without Cozy Voice Chat;
+use `true` if your mod requires it):
+
+```toml
+[[dependencies.yourmodid]]
+    modId="cozyvoicechat"
+    mandatory=false
+    versionRange="[1.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+```
+
+**3. Use the API.** Events are normal Forge events on `MinecraftForge.EVENT_BUS`. Mark one class with `@CozyVoiceAddon`
+and implement `CozyVoicePlugin`: Cozy Voice Chat finds it at startup, creates it (public no-argument constructor) and calls
+`onRegister`. Registered addons are listed in the log, in `/cozyvoice addons` and in `CozyVoiceApi.get().getAddons()`.
+
+```java
+import net.elgerelg.cozyvoicechat.api.CozyVoiceApi;
+import net.elgerelg.cozyvoicechat.api.addon.CozyVoiceAddon;
+import net.elgerelg.cozyvoicechat.api.addon.CozyVoicePlugin;
+import net.elgerelg.cozyvoicechat.api.event.VoiceConnectionEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+@CozyVoiceAddon
+public class MyVoiceAddon implements CozyVoicePlugin {
+
+    @Override
+    public String getId() {
+        return "yourmodid";
+    }
+
+    @Override
+    public void onRegister(CozyVoiceApi api) {
+        // Only called when Cozy Voice Chat is installed, so the API is safe to use here.
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void onConnected(VoiceConnectionEvent.Connected event) {
+        if (event.getPlayer() != null) {
+            event.getPlayer().sendSystemMessage(net.minecraft.network.chat.Component.literal("Voice connected!"));
+        }
+    }
+}
+```
+
+Outside the addon class (for example in code that also runs without the mod), check first:
+
+```java
+if (CozyVoiceApi.isAvailable()) {
+    CozyVoiceApi api = CozyVoiceApi.get();
+    boolean connected = api.server().isConnected(player.getUUID());
+}
+```
+
+See [API.md](API.md) and the [JavaDoc](https://elgerelg.github.io/CozyVoiceChat/) for everything else (channels, audio
+players, groups, microphone and playback processing, client API).
+
 ## Building
 
 ```bash
