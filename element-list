@@ -1,0 +1,6 @@
+net.elgerelg.cozyvoicechat.api
+net.elgerelg.cozyvoicechat.api.audio
+net.elgerelg.cozyvoicechat.api.client
+net.elgerelg.cozyvoicechat.api.event
+net.elgerelg.cozyvoicechat.api.event.client
+net.elgerelg.cozyvoicechat.api.server

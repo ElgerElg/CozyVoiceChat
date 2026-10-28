@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"net.elgerelg.cozyvoicechat.api"},{"l":"net.elgerelg.cozyvoicechat.api.audio"},{"l":"net.elgerelg.cozyvoicechat.api.client"},{"l":"net.elgerelg.cozyvoicechat.api.event"},{"l":"net.elgerelg.cozyvoicechat.api.event.client"},{"l":"net.elgerelg.cozyvoicechat.api.server"}];updateSearchResults();
