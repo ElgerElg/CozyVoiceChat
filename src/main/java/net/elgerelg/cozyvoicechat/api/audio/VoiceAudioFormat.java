@@ -4,6 +4,11 @@ package net.elgerelg.cozyvoicechat.api.audio;
  * Audio format used everywhere in Cozy Voice Chat: 48 kHz, mono, signed 16-bit PCM,
  * in frames of 20 ms (960 samples). Every PCM array passed to or received from the API
  * is one frame in this format.
+ *
+ * @see VoiceEncoder
+ * @see VoiceDecoder
+ *
+ * @since 1.1.0
  */
 public final class VoiceAudioFormat {
 

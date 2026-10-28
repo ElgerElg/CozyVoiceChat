@@ -24,17 +24,36 @@ import java.util.List;
  * {@code net.elgerelg.cozyvoicechat.api.event} packages.</p>
  *
  * <p>If Cozy Voice Chat is an optional dependency, guard calls with
- * {@code ModList.get().isLoaded(CozyVoiceApi.MOD_ID)}.</p>
+ * {@code ModList.get().isLoaded(CozyVoiceApi.MOD_ID)} or {@link #isAvailable()}.</p>
+ *
+ * <p>Thread safety: {@link #get()} and the codec factories may be called from any thread.
+ * Server methods are thread-safe; client setters must run on the client thread
+ * (see {@link ClientVoiceApi}).</p>
+ *
+ * <p>Before 1.1.0 this was a final class with only the static route-hook methods; those are
+ * still here and work the same.</p>
+ *
+ * @see ServerVoiceApi
+ * @see ClientVoiceApi
+ * @see net.elgerelg.cozyvoicechat.api.event.MicrophonePacketEvent
+ *
+ * @since 1.0.0
  */
 public interface CozyVoiceApi {
 
     /**
      * Version of the API this jar was compiled from. It increases whenever the API changes.
      * Compare it with {@link #getApiVersion()} to detect an older mod at runtime.
+     *
+     * @since 1.1.0
      */
     int API_VERSION = 1;
 
-    /** Mod id of Cozy Voice Chat, for {@code mods.toml} dependencies and {@code ModList} checks. */
+    /**
+     * Mod id of Cozy Voice Chat, for {@code mods.toml} dependencies and {@code ModList} checks.
+     *
+     * @since 1.1.0
+     */
     String MOD_ID = "cozyvoicechat";
 
     /**
@@ -42,6 +61,8 @@ public interface CozyVoiceApi {
      *
      * @return the API, never {@code null}
      * @throws IllegalStateException if only the API jar is present and the mod itself is not installed
+     * @see #isAvailable()
+     * @since 1.1.0
      */
     static CozyVoiceApi get() {
         return ApiHolder.get();
@@ -51,6 +72,7 @@ public interface CozyVoiceApi {
      * Checks whether the full mod (not only the API jar) is present.
      *
      * @return {@code true} if {@link #get()} will succeed
+     * @since 1.1.0
      */
     static boolean isAvailable() {
         try {
@@ -65,6 +87,8 @@ public interface CozyVoiceApi {
      * API version implemented by the installed mod.
      *
      * @return the runtime API version, at least 1
+     * @see #API_VERSION
+     * @since 1.1.0
      */
     int getApiVersion();
 
@@ -72,6 +96,7 @@ public interface CozyVoiceApi {
      * Version of the installed mod, as written in its {@code mods.toml}.
      *
      * @return the mod version, e.g. {@code "1.1.0"}
+     * @since 1.1.0
      */
     String getModVersion();
 
@@ -80,6 +105,8 @@ public interface CozyVoiceApi {
      * Methods that need a running server return neutral values when none is running.
      *
      * @return the server API, never {@code null}
+     * @see ServerVoiceApi
+     * @since 1.1.0
      */
     ServerVoiceApi server();
 
@@ -88,6 +115,8 @@ public interface CozyVoiceApi {
      *
      * @return the client API, never {@code null}
      * @throws IllegalStateException when called on a dedicated server
+     * @see ClientVoiceApi
+     * @since 1.1.0
      */
     ClientVoiceApi client();
 
@@ -96,6 +125,8 @@ public interface CozyVoiceApi {
      * (32 kbit/s if no server is running).
      *
      * @return a new encoder; each instance holds stream state, so use one per audio stream
+     * @throws IllegalStateException if the Opus codec could not be initialised
+     * @since 1.1.0
      */
     VoiceEncoder createEncoder();
 
@@ -104,6 +135,8 @@ public interface CozyVoiceApi {
      *
      * @param bitrate bits per second, clamped to 8000..96000
      * @return a new encoder
+     * @throws IllegalStateException if the Opus codec could not be initialised
+     * @since 1.1.0
      */
     VoiceEncoder createEncoder(int bitrate);
 
@@ -111,6 +144,8 @@ public interface CozyVoiceApi {
      * Creates an Opus decoder with the mod's audio format.
      *
      * @return a new decoder; use one per incoming stream
+     * @throws IllegalStateException if the Opus codec could not be initialised
+     * @since 1.1.0
      */
     VoiceDecoder createDecoder();
 
@@ -123,6 +158,8 @@ public interface CozyVoiceApi {
      * Same as {@code CozyVoiceApi.get().server().registerRouteHook(hook)}.
      *
      * @param hook the hook; {@code null} is ignored
+     * @see ServerVoiceApi#registerRouteHook(VoiceRouteHook)
+     * @since 1.0.0
      */
     static void registerRouteHook(VoiceRouteHook hook) {
         if (hook != null && !ApiHolder.HOOKS.contains(hook)) ApiHolder.HOOKS.add(hook);
@@ -132,6 +169,7 @@ public interface CozyVoiceApi {
      * Removes a previously registered routing hook.
      *
      * @param hook the hook to remove
+     * @since 1.0.0
      */
     static void unregisterRouteHook(VoiceRouteHook hook) {
         ApiHolder.HOOKS.remove(hook);
@@ -141,6 +179,7 @@ public interface CozyVoiceApi {
      * All registered routing hooks, in registration order.
      *
      * @return a live, thread-safe list; prefer {@link #registerRouteHook} over modifying it
+     * @since 1.0.0
      */
     static List<VoiceRouteHook> routeHooks() {
         return ApiHolder.HOOKS;

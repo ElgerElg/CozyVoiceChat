@@ -12,6 +12,11 @@ import java.util.UUID;
  *
  * <p>To draw your own HUD, register a normal Forge overlay ({@code RegisterGuiOverlaysEvent})
  * and read the state from here.</p>
+ *
+ * @see net.elgerelg.cozyvoicechat.api.CozyVoiceApi#client()
+ * @see net.elgerelg.cozyvoicechat.api.event.client.ClientTalkingStateEvent
+ *
+ * @since 1.1.0
  */
 public interface ClientVoiceApi {
 

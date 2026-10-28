@@ -6,6 +6,8 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * A player turned their microphone off/on or deafened/undeafened themselves on their client.
  * Posted on the <b>server thread</b>.
+ *
+ * @since 1.1.0
  */
 public class VoiceStateChangedEvent extends Event {
 
@@ -14,6 +16,8 @@ public class VoiceStateChangedEvent extends Event {
     private final boolean deafened;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param player   the player
      * @param micMuted whether their mic is now muted
      * @param deafened whether they are now deafened

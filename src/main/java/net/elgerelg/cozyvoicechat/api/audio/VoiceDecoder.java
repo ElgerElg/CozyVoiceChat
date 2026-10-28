@@ -2,7 +2,10 @@ package net.elgerelg.cozyvoicechat.api.audio;
 
 /**
  * Opus decoder producing {@link VoiceAudioFormat} frames. Create one with
- * {@code CozyVoiceApi.get().createDecoder()}. Not thread-safe; use one per stream.
+ * {@link net.elgerelg.cozyvoicechat.api.CozyVoiceApi#createDecoder()}. Decoders keep stream state,
+ * so use one instance per incoming stream. Works on any thread and on both sides.
+ *
+ * @since 1.1.0
  */
 public interface VoiceDecoder extends AutoCloseable {
 
@@ -10,7 +13,8 @@ public interface VoiceDecoder extends AutoCloseable {
      * Decodes one Opus packet.
      *
      * @param opus an Opus packet, or {@code null} to conceal a lost packet (packet loss concealment)
-     * @return {@link VoiceAudioFormat#FRAME_SAMPLES} samples; silence if decoding failed
+     * @return a new array of {@link VoiceAudioFormat#FRAME_SAMPLES} samples
+     * @throws IllegalStateException if the decoder is closed or the packet could not be decoded
      */
     short[] decode(byte[] opus);
 

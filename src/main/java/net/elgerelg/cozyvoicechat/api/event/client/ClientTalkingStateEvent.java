@@ -7,6 +7,8 @@ import java.util.UUID;
 /**
  * A player started or stopped talking, as heard by the local client (includes the local player).
  * Posted on the <b>client thread</b> at the end of a client tick, so it can lag by up to one tick.
+ *
+ * @since 1.1.0
  */
 public class ClientTalkingStateEvent extends Event {
 
@@ -15,6 +17,8 @@ public class ClientTalkingStateEvent extends Event {
     private final boolean localPlayer;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param playerId    the player
      * @param talking     the new state
      * @param localPlayer whether it is the local player

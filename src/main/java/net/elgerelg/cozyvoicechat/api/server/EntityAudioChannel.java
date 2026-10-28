@@ -6,6 +6,8 @@ import net.minecraft.world.entity.Entity;
  * Audio that follows an entity (a talking mob, a boombox carried by a player, a minecart radio).
  * Players near the entity hear it positionally; clients track the entity's position themselves,
  * so the sound moves smoothly. Nothing plays once the entity is removed.
+ *
+ * @since 1.1.0
  */
 public interface EntityAudioChannel extends AudioChannel {
 

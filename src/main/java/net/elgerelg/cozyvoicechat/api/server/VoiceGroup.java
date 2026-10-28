@@ -11,6 +11,10 @@ import java.util.UUID;
  * and no route hooks. In a non-exclusive group, nearby non-members still hear members as usual.</p>
  *
  * <p>Groups exist in memory until removed or the server stops. Thread-safe.</p>
+ *
+ * @see ServerVoiceApi#createGroup(String, boolean)
+ *
+ * @since 1.1.0
  */
 public interface VoiceGroup {
 
@@ -46,6 +50,8 @@ public interface VoiceGroup {
      * Adds a member, moving them out of any other group.
      *
      * @param playerId the player
+     * @throws NullPointerException  if {@code playerId} is {@code null}
+     * @throws IllegalStateException if the group was {@link #remove() removed}
      */
     void addMember(UUID playerId);
 

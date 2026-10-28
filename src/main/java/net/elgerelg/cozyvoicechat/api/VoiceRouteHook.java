@@ -15,10 +15,16 @@ import java.util.UUID;
  *
  * <p>For per-route changes with access to the full target list, you can also listen to
  * {@link net.elgerelg.cozyvoicechat.api.event.VoiceRouteEvent}.</p>
+ *
+ * @since 1.0.0
  */
 public interface VoiceRouteHook {
 
-    /** Receives the recipients of a route. */
+    /**
+     * Receives the recipients of a route.
+     *
+     * @since 1.0.0
+     */
     interface Sink {
         /**
          * Sends the speaker's voice to a player.

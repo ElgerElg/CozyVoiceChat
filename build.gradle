@@ -126,14 +126,33 @@ tasks.register('apiSourcesJar', Jar) {
 
 tasks.register('apiJavadoc', Javadoc) {
     group = 'documentation'
-    description = 'Generates Javadoc for the Cozy Voice Chat API.'
+    description = 'Generates the Cozy Voice Chat API Javadoc site (API packages only, no internals).'
     source = sourceSets.main.allJava.matching { include apiPackage }
-    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+    // Типы Forge/Minecraft разрешаются через classpath, ссылок на их javadoc нет — это не ошибка.
+    classpath = sourceSets.main.compileClasspath
     destinationDir = layout.buildDirectory.dir('docs/api-javadoc').get().asFile
-    failOnError = false
-    options.encoding = 'UTF-8'
-    options.addStringOption('Xdoclint:none', '-quiet')
     title = "Cozy Voice Chat API ${project.version}"
+    failOnError = false
+    options {
+        encoding = 'UTF-8'
+        docEncoding = 'UTF-8'
+        charSet = 'UTF-8'
+        windowTitle = "Cozy Voice Chat API ${project.version}"
+        docTitle = "Cozy Voice Chat API ${project.version}"
+        bottom = 'Cozy Voice Chat &copy; 2026 ElgerElg &middot; MIT License &middot; ' +
+                '<a href="https://github.com/ElgerElg/CozyVoiceChat">GitHub</a>'
+        overview = file('src/main/javadoc/overview.html')
+        links 'https://docs.oracle.com/en/java/javase/17/docs/api/'
+        author = false
+        noTimestamp = true
+        group('Entry point', ['net.elgerelg.cozyvoicechat.api'])
+        group('Server', ['net.elgerelg.cozyvoicechat.api.server', 'net.elgerelg.cozyvoicechat.api.event'])
+        group('Client', ['net.elgerelg.cozyvoicechat.api.client', 'net.elgerelg.cozyvoicechat.api.event.client'])
+        group('Audio', ['net.elgerelg.cozyvoicechat.api.audio'])
+        // doclint: всё, кроме отсутствующих ссылок на внешние (Forge/MC) javadoc. -PjavadocLint=all — полный аудит.
+        addStringOption("Xdoclint:${project.findProperty('javadocLint') ?: 'all,-missing'}", '-quiet')
+        addStringOption('Xmaxwarns', '10000')
+    }
 }
 
 tasks.register('apiJavadocJar', Jar) {

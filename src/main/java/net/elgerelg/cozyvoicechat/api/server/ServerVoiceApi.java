@@ -16,6 +16,15 @@ import java.util.function.Supplier;
  *
  * <p>All methods are thread-safe unless stated otherwise. Mutes, effects and "hear yourself"
  * are kept in memory until the server restarts, exactly like the {@code /cozyvoice} command.</p>
+ *
+ * <p>Side: logical server. On a client connected to a remote server these methods see no players
+ * and change nothing; use {@link net.elgerelg.cozyvoicechat.api.client.ClientVoiceApi} there.</p>
+ *
+ * @see net.elgerelg.cozyvoicechat.api.CozyVoiceApi#server()
+ * @see AudioChannel
+ * @see VoiceGroup
+ *
+ * @since 1.1.0
  */
 public interface ServerVoiceApi {
 
@@ -139,6 +148,7 @@ public interface ServerVoiceApi {
      * @param playerId the player
      * @param effect   the effect
      * @param enabled  the new state
+     * @throws NullPointerException if {@code playerId} or {@code effect} is {@code null}
      */
     void setEffect(UUID playerId, VoiceEffect effect, boolean enabled);
 
@@ -163,6 +173,7 @@ public interface ServerVoiceApi {
      *
      * @param playerId the player
      * @param enabled  the new state
+     * @throws NullPointerException if {@code playerId} is {@code null}
      */
     void setHearSelf(UUID playerId, boolean enabled);
 
@@ -172,7 +183,8 @@ public interface ServerVoiceApi {
      * Creates an audio channel without a position.
      *
      * @param id channel id, or {@code null} for a random one
-     * @return the new channel
+     * @return the new channel, already registered; {@link AudioChannel#close() close} it when done
+     * @see StaticAudioChannel#addTarget(UUID)
      */
     StaticAudioChannel createStaticChannel(UUID id);
 
@@ -182,7 +194,8 @@ public interface ServerVoiceApi {
      * @param id       channel id, or {@code null} for a random one
      * @param level    the level
      * @param position the position
-     * @return the new channel
+     * @return the new channel, already registered; {@link AudioChannel#close() close} it when done
+     * @throws NullPointerException if {@code level} or {@code position} is {@code null}
      */
     LocationalAudioChannel createLocationalChannel(UUID id, ServerLevel level, Vec3 position);
 
@@ -191,7 +204,8 @@ public interface ServerVoiceApi {
      *
      * @param id     channel id, or {@code null} for a random one
      * @param entity the entity
-     * @return the new channel
+     * @return the new channel, already registered; {@link AudioChannel#close() close} it when done
+     * @throws NullPointerException if {@code entity} is {@code null}
      */
     EntityAudioChannel createEntityChannel(UUID id, Entity entity);
 
@@ -201,7 +215,8 @@ public interface ServerVoiceApi {
      * @param channel the channel to feed
      * @param frames  returns the next 960-sample frame, or {@code null} when the sound is over.
      *                Called on a background thread.
-     * @return the player
+     * @return the player, not started yet
+     * @throws NullPointerException if {@code channel} or {@code frames} is {@code null}
      */
     AudioPlayer createAudioPlayer(AudioChannel channel, Supplier<short[]> frames);
 

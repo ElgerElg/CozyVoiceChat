@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Cozy Voice Chat API</title></head>
+<body>
+<p>Public API for addons to <a href="https://github.com/ElgerElg/CozyVoiceChat">Cozy Voice Chat</a>,
+a proximity voice chat mod for Minecraft Forge 1.20.1. API version <code>1</code>, mod 1.1.0 or newer, MIT licensed.</p>
+
+<p>Only <code>net.elgerelg.cozyvoicechat.api</code> and its subpackages are public; everything else in the mod
+is internal. The full guide with more examples is
+<a href="https://github.com/ElgerElg/CozyVoiceChat/blob/main/API.md">API.md</a>.</p>
+
+<h1>Quick start</h1>
+
+<h2>1. Gradle (JitPack)</h2>
+<pre>{@code
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+dependencies {
+    // API only: no Minecraft method references, so no fg.deobf is needed
+    compileOnly 'com.github.ElgerElg.CozyVoiceChat:cozyvoicechat-api:<tag>'
+    // optional: the real mod in dev runs
+    runtimeOnly fg.deobf('com.github.ElgerElg.CozyVoiceChat:cozyvoicechat:<tag>')
+    minecraftLibrary 'io.github.jaredmdobson:concentus:1.0.2'
+}
+}</pre>
+<p><code>&lt;tag&gt;</code> is a release tag of the repository, e.g. <code>v1.1.0</code>.
+Do not ship the API jar inside your mod; players install Cozy Voice Chat itself.</p>
+
+<h2>2. mods.toml</h2>
+<pre>
+[[dependencies.yourmodid]]
+modId="cozyvoicechat"
+mandatory=true            # or false for an optional integration
+versionRange="[1.1.0,)"
+ordering="AFTER"
+side="BOTH"
+</pre>
+
+<h2>3. Get the API</h2>
+<pre>{@code
+if (CozyVoiceApi.isAvailable()) {
+    CozyVoiceApi api = CozyVoiceApi.get();     // any time after mod construction
+    ServerVoiceApi server = api.server();      // logical server
+    ClientVoiceApi client = api.client();      // physical client only
+}
+}</pre>
+<p>See {@link net.elgerelg.cozyvoicechat.api.CozyVoiceApi}, {@link net.elgerelg.cozyvoicechat.api.server.ServerVoiceApi}
+and {@link net.elgerelg.cozyvoicechat.api.client.ClientVoiceApi}.</p>
+
+<h2>4. Listen to events</h2>
+<p>Events are normal Forge events on <code>MinecraftForge.EVENT_BUS</code>:</p>
+<pre>{@code
+@SubscribeEvent
+public static void onRoute(VoiceRouteEvent e) {
+    ServerPlayer sender = e.getSender();
+    if (!Radio.isTransmitting(sender)) return;
+    for (ServerPlayer p : sender.server.getPlayerList().getPlayers()) {
+        if (p != sender && Radio.isListening(p)) {
+            e.getTargets().add(new VoiceTarget(p.getUUID(), VoiceCategory.RADIO, 1f));
+        }
+    }
+    e.setRadioEffect(true);
+}
+}</pre>
+
+<h2>5. Mutes, groups and audio</h2>
+<pre>{@code
+ServerVoiceApi voice = CozyVoiceApi.get().server();
+voice.mute(player.getUUID(), 300);                       // 5 minutes, fires VoiceMuteChangedEvent
+
+VoiceGroup team = voice.createGroup("Red team", false);  // members hear each other anywhere
+team.addMember(player.getUUID());
+
+LocationalAudioChannel speaker = voice.createLocationalChannel(null, level, Vec3.atCenterOf(pos));
+AudioPlayer music = voice.createAudioPlayer(speaker, nextFrameOrNull);  // 960-sample frames, null = end
+music.onStopped(speaker::close);
+music.start();
+}</pre>
+
+<h1>Threads</h1>
+<table class="striped">
+<caption>Where each callback runs</caption>
+<thead><tr><th scope="col">What</th><th scope="col">Thread</th></tr></thead>
+<tbody>
+<tr><td>{@link net.elgerelg.cozyvoicechat.api.event.VoiceConnectionEvent}, {@link net.elgerelg.cozyvoicechat.api.event.VoiceRouteEvent}, {@link net.elgerelg.cozyvoicechat.api.event.VoiceStateChangedEvent}, {@link net.elgerelg.cozyvoicechat.api.VoiceRouteHook}</td><td>server thread</td></tr>
+<tr><td>{@link net.elgerelg.cozyvoicechat.api.event.MicrophonePacketEvent}</td><td>network thread (no world access)</td></tr>
+<tr><td>{@link net.elgerelg.cozyvoicechat.api.event.client.ClientMicrophoneEvent}</td><td>microphone thread</td></tr>
+<tr><td>{@link net.elgerelg.cozyvoicechat.api.event.client.ClientReceiveAudioEvent}</td><td>playback thread</td></tr>
+<tr><td>other client events</td><td>client thread</td></tr>
+<tr><td>{@link net.elgerelg.cozyvoicechat.api.server.AudioChannel#sendPcm(short[])} / {@code sendOpus}</td><td>any thread</td></tr>
+</tbody>
+</table>
+</body>
+</html>

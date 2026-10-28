@@ -6,6 +6,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Audio coming from a fixed point in a level (speakers, jukeboxes, alarms). Every player in the same
  * level and within {@link #getDistance()} blocks hears it, attenuated and panned like a player's voice.
+ *
+ * @since 1.1.0
  */
 public interface LocationalAudioChannel extends AudioChannel {
 

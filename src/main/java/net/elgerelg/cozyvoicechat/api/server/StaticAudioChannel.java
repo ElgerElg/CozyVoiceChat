@@ -9,6 +9,8 @@ import java.util.UUID;
  *
  * <p>It plays to the players added with {@link #addTarget(UUID)}. If a filter is set with
  * {@link #setFilter}, every online player matching the filter hears it as well.</p>
+ *
+ * @since 1.1.0
  */
 public interface StaticAudioChannel extends AudioChannel {
 
@@ -16,6 +18,7 @@ public interface StaticAudioChannel extends AudioChannel {
      * Adds a listener.
      *
      * @param playerId the player
+     * @throws NullPointerException if {@code playerId} is {@code null}
      */
     void addTarget(UUID playerId);
 

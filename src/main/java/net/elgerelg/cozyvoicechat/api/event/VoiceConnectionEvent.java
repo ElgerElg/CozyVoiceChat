@@ -8,6 +8,8 @@ import java.util.UUID;
 /**
  * A player's voice connection on the server opened or closed. Posted on
  * {@code MinecraftForge.EVENT_BUS} on the <b>server thread</b>.
+ *
+ * @since 1.1.0
  */
 public abstract class VoiceConnectionEvent extends Event {
 
@@ -15,6 +17,8 @@ public abstract class VoiceConnectionEvent extends Event {
     private final ServerPlayer player;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param playerId the player
      * @param player   the player entity, if online
      */
@@ -41,9 +45,15 @@ public abstract class VoiceConnectionEvent extends Event {
         return player;
     }
 
-    /** The client finished the UDP handshake; the player can now talk and listen. */
+    /**
+     * The client finished the UDP handshake; the player can now talk and listen.
+     *
+     * @since 1.1.0
+     */
     public static class Connected extends VoiceConnectionEvent {
         /**
+         * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+         *
          * @param playerId the player
          * @param player   the player entity
          */
@@ -52,10 +62,18 @@ public abstract class VoiceConnectionEvent extends Event {
         }
     }
 
-    /** The player's voice session ended. */
+    /**
+     * The player's voice session ended.
+     *
+     * @since 1.1.0
+     */
     public static class Disconnected extends VoiceConnectionEvent {
 
-        /** Why the session ended. */
+        /**
+         * Why the session ended.
+         *
+         * @since 1.1.0
+         */
         public enum Reason {
             /** The client closed the session (left the world, changed device and reconnected...). */
             CLIENT_CLOSED,
@@ -68,6 +86,8 @@ public abstract class VoiceConnectionEvent extends Event {
         private final Reason reason;
 
         /**
+         * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+         *
          * @param playerId the player
          * @param player   the player entity, if online
          * @param reason   why it ended

@@ -9,6 +9,8 @@ package net.elgerelg.cozyvoicechat.api;
  * {@link net.elgerelg.cozyvoicechat.api.server.VoiceTarget} and when reading
  * {@link net.elgerelg.cozyvoicechat.api.event.client.ClientReceiveAudioEvent#getCategory()}.
  * Categories 4..15 are free for addons and play like {@link #GLOBAL}.</p>
+ *
+ * @since 1.1.0
  */
 public final class VoiceCategory {
 

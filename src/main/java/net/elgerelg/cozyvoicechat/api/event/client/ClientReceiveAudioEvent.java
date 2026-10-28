@@ -13,6 +13,8 @@ import java.util.UUID;
  *
  * <p>Modify {@link #getPcm()} in place (before volume and panning are applied) or cancel the
  * event to skip this frame.</p>
+ *
+ * @since 1.1.0
  */
 @Cancelable
 public class ClientReceiveAudioEvent extends Event {
@@ -22,6 +24,8 @@ public class ClientReceiveAudioEvent extends Event {
     private final short[] pcm;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param sourceId speaking player or audio channel id
      * @param category the category
      * @param pcm      the decoded frame

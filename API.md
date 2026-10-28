@@ -8,6 +8,7 @@ Every other package (`impl`, `server`, `client`, ...) is internal and may change
 - **API version:** `1` (`CozyVoiceApi.API_VERSION`)
 - **Mod version:** `1.1.0` or newer
 - **License:** MIT
+- **Javadoc:** https://elgerelg.github.io/CozyVoiceChat/
 
 ---
 

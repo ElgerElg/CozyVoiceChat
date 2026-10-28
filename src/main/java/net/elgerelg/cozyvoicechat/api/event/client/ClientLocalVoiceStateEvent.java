@@ -5,6 +5,8 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * The local player's microphone mute or deafen state was published (hotkey, settings screen or API).
  * Posted on the <b>client thread</b>.
+ *
+ * @since 1.1.0
  */
 public class ClientLocalVoiceStateEvent extends Event {
 
@@ -12,6 +14,8 @@ public class ClientLocalVoiceStateEvent extends Event {
     private final boolean deafened;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param micMuted whether the mic is muted
      * @param deafened whether the player is deafened
      */

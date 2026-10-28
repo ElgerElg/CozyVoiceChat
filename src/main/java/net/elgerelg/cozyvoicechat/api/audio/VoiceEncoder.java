@@ -2,7 +2,11 @@ package net.elgerelg.cozyvoicechat.api.audio;
 
 /**
  * Opus encoder for {@link VoiceAudioFormat} frames. Create one with
- * {@code CozyVoiceApi.get().createEncoder()}. Not thread-safe; use one per stream.
+ * {@link net.elgerelg.cozyvoicechat.api.CozyVoiceApi#createEncoder()}. Encoders keep stream state,
+ * so use one instance per audio stream. Calls are synchronized, but interleaving two streams
+ * on one encoder produces bad audio. Works on any thread and on both sides.
+ *
+ * @since 1.1.0
  */
 public interface VoiceEncoder extends AutoCloseable {
 
@@ -10,8 +14,9 @@ public interface VoiceEncoder extends AutoCloseable {
      * Encodes one frame.
      *
      * @param pcm exactly {@link VoiceAudioFormat#FRAME_SAMPLES} samples
-     * @return the Opus packet, or an empty array if encoding failed
-     * @throws IllegalArgumentException if {@code pcm} has the wrong length
+     * @return the Opus packet
+     * @throws IllegalArgumentException if {@code pcm} is {@code null} or has the wrong length
+     * @throws IllegalStateException    if the encoder is closed or Opus failed to encode the frame
      */
     byte[] encode(short[] pcm);
 

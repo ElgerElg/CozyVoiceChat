@@ -8,6 +8,8 @@ import java.util.UUID;
  * A player was muted or unmuted (by {@code /cozyvoice mute|unmute} or the API).
  * Posted on {@code MinecraftForge.EVENT_BUS} on the thread that changed the mute,
  * usually the server thread. Mutes that simply expire do not fire this event.
+ *
+ * @since 1.1.0
  */
 public class VoiceMuteChangedEvent extends Event {
 
@@ -16,6 +18,8 @@ public class VoiceMuteChangedEvent extends Event {
     private final long durationSeconds;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param playerId        the player
      * @param muted           the new state
      * @param durationSeconds mute length, {@code -1} until restart, {@code 0} when unmuted

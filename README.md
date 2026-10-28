@@ -91,6 +91,8 @@ api.server().mute(player.getUUID(), 60);
 
 See **[API.md](API.md)** for setup, the full overview and examples.
 
+📖 **JavaDoc:** https://elgerelg.github.io/CozyVoiceChat/ (API reference for every public class, generated from the sources).
+
 ## Building
 
 ```bash

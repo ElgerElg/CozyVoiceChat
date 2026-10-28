@@ -15,6 +15,8 @@ import java.util.List;
  * <p>Fired after mutes, groups, route hooks and proximity were applied. It is not fired for
  * muted players. Edit {@link #getTargets()} to add or remove listeners, toggle effects for the
  * route, or cancel the event so nobody hears the player for this route period.</p>
+ *
+ * @since 1.1.0
  */
 @Cancelable
 public class VoiceRouteEvent extends Event {
@@ -25,6 +27,8 @@ public class VoiceRouteEvent extends Event {
     private boolean echoEffect;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param sender      the talking player
      * @param targets     the mutable target list
      * @param radioEffect whether the radio effect is applied

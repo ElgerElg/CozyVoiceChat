@@ -24,6 +24,13 @@ import java.util.UUID;
  *     <li>just read the audio (recording, speech detection).</li>
  * </ul>
  * Effects (radio/echo) are applied after this event.
+ *
+ * <p>Side: logical server.</p>
+ *
+ * @see VoiceRouteEvent
+ * @see net.elgerelg.cozyvoicechat.api.audio.VoiceDecoder
+ *
+ * @since 1.1.0
  */
 @Cancelable
 public class MicrophonePacketEvent extends Event {
@@ -35,6 +42,8 @@ public class MicrophonePacketEvent extends Event {
     private List<VoiceTarget> editedTargets;
 
     /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
      * @param senderId the talking player
      * @param sequence packet sequence number
      * @param opusData the Opus frame
@@ -78,6 +87,7 @@ public class MicrophonePacketEvent extends Event {
      * Replaces the Opus frame that will be relayed.
      *
      * @param opusData the new frame, not empty
+     * @throws IllegalArgumentException if {@code opusData} is {@code null} or empty
      */
     public void setOpusData(byte[] opusData) {
         if (opusData == null || opusData.length == 0) throw new IllegalArgumentException("opusData");

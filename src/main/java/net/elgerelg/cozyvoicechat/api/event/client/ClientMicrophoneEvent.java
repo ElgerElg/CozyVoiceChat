@@ -10,13 +10,19 @@ import net.minecraftforge.eventbus.api.Event;
  * <p>The PCM array (960 samples, 48 kHz mono) is already gain-adjusted and noise-suppressed.
  * Modify it in place to change what others hear (voice changers, filters), read it to record,
  * or cancel the event to not send this frame.</p>
+ *
+ * @since 1.1.0
  */
 @Cancelable
 public class ClientMicrophoneEvent extends Event {
 
     private final short[] pcm;
 
-    /** @param pcm the frame, modified in place by listeners */
+    /**
+     * Creates the event. Posted by Cozy Voice Chat; addons normally only listen to it.
+     *
+     * @param pcm the frame, modified in place by listeners
+     */
     public ClientMicrophoneEvent(short[] pcm) {
         this.pcm = pcm;
     }

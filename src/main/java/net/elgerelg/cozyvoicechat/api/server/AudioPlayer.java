@@ -4,6 +4,8 @@ package net.elgerelg.cozyvoicechat.api.server;
  * Feeds an {@link AudioChannel} with one frame every 20 ms on a background thread.
  * Created by {@link ServerVoiceApi#createAudioPlayer}. It stops when the frame supplier
  * returns {@code null}, when the channel is closed, or when {@link #stop()} is called.
+ *
+ * @since 1.1.0
  */
 public interface AudioPlayer {
 

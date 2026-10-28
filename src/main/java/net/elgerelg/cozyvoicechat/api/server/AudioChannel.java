@@ -16,9 +16,13 @@ import java.util.function.Predicate;
  * <p>Recipients are recalculated on the server thread every couple of ticks, so the very
  * first frames of a new channel may reach nobody for up to 2 ticks.</p>
  *
+ * <p>Side: logical server. Create channels through {@link ServerVoiceApi}.</p>
+ *
  * @see StaticAudioChannel
  * @see LocationalAudioChannel
  * @see EntityAudioChannel
+ *
+ * @since 1.1.0
  */
 public interface AudioChannel {
 
